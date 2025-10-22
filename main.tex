@@ -1,0 +1,33 @@
+% Max-Cut Hamiltonian notes
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+
+\begin{document}
+
+In the Max-Cut Hamiltonian, each local operator is defined by the edge Hamiltonian
+\[
+	h_{ab} = \tfrac{1}{2}\bigl(\mathbb{I} - \mathrm{SWAP}_{ab}\bigr)\otimes \mathbb{I}_{[n]\setminus\{a,b\}}.
+\]
+
+Therefore, the total Hamiltonian for a graph $G$ is
+\[
+	H_G = \sum_{e\in E} w_e\, h_e.
+\]
+
+Moreover, the state
+\[
+	|\psi\rangle = \tfrac{1}{\sqrt{2}}\bigl(|01\rangle - |10\rangle\bigr)
+\]
+achieves the maximum energy of $h_{ab}$.
+
+Recent work has found success in considering the matching state
+\[
+	|\rho_m\rangle = |\psi\rangle_{ab} \otimes |\psi\rangle_{cd} \otimes \cdots \otimes |0000\rangle,
+\]
+corresponding to a maximal matching $m = \{(a,b), (c,d), \ldots\}$.
+
+
+
+\end{document}
+
