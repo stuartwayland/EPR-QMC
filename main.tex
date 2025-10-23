@@ -2,6 +2,11 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsfonts}
+\usepackage{braket}
+
+% Dirac notation shortcuts
+\newcommand{\ip}[2]{\langle #1 \mid #2 \rangle}
+
 
 \begin{document}
 
@@ -26,6 +31,231 @@ Recent work has found success in considering the matching state
 	|\rho_m\rangle = |\psi\rangle_{ab} \otimes |\psi\rangle_{cd} \otimes \cdots \otimes |0000\rangle,
 \]
 corresponding to a maximal matching $m = \{(a,b), (c,d), \ldots\}$.
+
+\paragraph{Expansion in the computational basis.}
+For the singlet on qubits $a,b$,
+\[
+\ket{\psi^-}_{ab}
+=\tfrac{1}{\sqrt{2}}(\ket{01}-\ket{10})
+=\tfrac{1}{\sqrt{2}}\sum_{i,j\in\{0,1\}}\varepsilon_{ij}\,\ket{i}_a\ket{j}_b,
+\quad
+\varepsilon=\begin{pmatrix}0&1\\-1&0\end{pmatrix}.
+\]
+Hence for a perfect matching $m$ on $[n]$,
+\[
+\ket{\Phi_m}
+=\bigotimes_{(a,b)\in m}\ket{\psi^-}_{ab}
+=\left(\tfrac{1}{\sqrt{2}}\right)^{n/2}
+\sum_{x\in\{0,1\}^n}
+\Biggl[\prod_{(a,b)\in m}\varepsilon_{x_a x_b}\Biggr]\ket{x}.
+\]
+Each basis vector $\ket{x}$ receives a coefficient given by the product of
+$\varepsilon_{x_a x_b}$ over the disjoint pairs in $m$.
+
+\paragraph{Inner product.}
+Similarly,
+\[
+\ket{\Phi_{m'}}
+=\left(\tfrac{1}{\sqrt{2}}\right)^{n/2}
+\sum_{y\in\{0,1\}^n}
+\Biggl[\prod_{(c,d)\in m'}\varepsilon_{y_c y_d}\Biggr]\ket{y}.
+\]
+Then
+\[
+\ip{\Phi_m}{\Phi_{m'}}
+=\left(\tfrac{1}{\sqrt{2}}\right)^{n}
+\sum_{x,y\in\{0,1\}^n}
+\Biggl[\prod_{(a,b)\in m}\varepsilon_{x_a x_b}\Biggr]
+\Biggl[\prod_{(c,d)\in m'}\varepsilon_{y_c y_d}\Biggr]
+\ip{x}{y}.
+\]
+Using orthonormality $\ip{x}{y}=\delta_{xy}$, the double sum collapses:
+\[
+\ip{\Phi_m}{\Phi_{m'}}
+=2^{-n/2}
+\sum_{x\in\{0,1\}^n}
+\Biggl[\prod_{(a,b)\in m}\varepsilon_{x_a x_b}\Biggr]
+\Biggl[\prod_{(c,d)\in m'}\varepsilon_{x_c x_d}\Biggr].
+	ag{1}\label{eq:overlap-compact}
+\]
+This is the desired compact form for the overlap of two perfect-matching (valence-bond) states.
+
+\section*{From edge products to cycle products}
+
+\paragraph{Cycle decomposition.}
+Let $m,m'$ be perfect matchings on $[n]$.
+In the multigraph $m\cup m'$, every vertex has degree $2$ (one edge from $m$, one from $m'$),
+so $m\cup m'$ is a disjoint union of even cycles
+\[
+C_1,\dots,C_\ell,\qquad |C_i|=2r_i,\ \ r_i\ge 1,\ \ \sum_{i=1}^{\ell} r_i=\frac{n}{2}.
+\]
+Along each $C_i$ the edges alternate between $m$ and $m'$.
+
+\paragraph{Rewriting the edge product by cycles.}
+Starting from \eqref{eq:overlap-compact},
+\[
+\prod_{(a,b)\in m}\varepsilon_{x_a x_b}\;\prod_{(c,d)\in m'}\varepsilon_{x_c x_d},
+\]
+note that each edge of $m$ and $m'$ lies in exactly one cycle $C_i$, and distinct cycles share no vertices.
+Hence the product factors as
+\[
+\prod_{(a,b)\in m}\varepsilon_{x_a x_b}\;\prod_{(c,d)\in m'}\varepsilon_{x_c x_d}
+\;=\;
+\prod_{i=1}^{\ell}\ \mathcal{F}(C_i;x),
+\]
+where for a fixed ordering $C_i=(v^{(i)}_1,\dots,v^{(i)}_{2r_i})$ with alternating $m/m'$ edges we define
+\[
+\mathcal{F}(C_i;x)
+\;:=\;
+\varepsilon_{x_{v^{(i)}_1}x_{v^{(i)}_2}}
+\varepsilon_{x_{v^{(i)}_2}x_{v^{(i)}_3}}
+\cdots
+\varepsilon_{x_{v^{(i)}_{2r_i}}x_{v^{(i)}_1}}.
+\]
+
+\paragraph{Factorization of the sum.}
+Let $X_i=\{x_v:\ v\in C_i\}$.
+Since cycles are vertex-disjoint, $\{x_1,\dots,x_n\}=X_1\;\dot\cup\;\cdots\;\dot\cup\;X_\ell$, and each
+$\mathcal{F}(C_i;x)$ depends only on $X_i$.
+Therefore the sum in \eqref{eq:overlap-compact} splits:
+\[
+\sum_{x\in\{0,1\}^n}\ \prod_{i=1}^{\ell}\mathcal{F}(C_i;x)
+\;=\;
+\prod_{i=1}^{\ell}\ \Biggl(\sum_{X_i\in\{0,1\}^{C_i}} \mathcal{F}(C_i;X_i)\Biggr),
+\]
+which is the desired reduction from edge-wise products to independent cycle-wise contributions.
+
+\section*{Evaluation of a single cycle}
+\paragraph{Setup.}
+Fix one cycle $C=(v_1,v_2,\dots,v_{2r})$ of $m\cup m'$,
+with edges alternating between those from $m$ and $m'$.
+The contribution from this cycle to the overlap is
+\[
+S(C)
+=\sum_{x_{v_1},\dots,x_{v_{2r}}\in\{0,1\}}
+\varepsilon_{x_{v_1}x_{v_2}}\,
+\varepsilon_{x_{v_2}x_{v_3}}\,
+\varepsilon_{x_{v_3}x_{v_4}}\cdots
+\varepsilon_{x_{v_{2r}}x_{v_1}}.
+\]
+
+\paragraph{Entries of the antisymmetric matrix.}
+Here $\varepsilon_{ij}$ denotes the \emph{scalar entry} of the fixed $2\times2$
+antisymmetric matrix
+\[
+\varepsilon=
+\begin{pmatrix}
+0 & 1\\[2pt]
+-1 & 0
+\end{pmatrix},
+\qquad
+\text{so that}\quad
+\varepsilon_{00}=0,\;
+\varepsilon_{01}=1,\;
+\varepsilon_{10}=-1,\;
+\varepsilon_{11}=0.
+\]
+Each $\varepsilon_{x_u x_v}$ in the product is simply one of these numerical
+entries, evaluated at the particular values of $x_u,x_v\in\{0,1\}$.
+
+\paragraph{Key identity.}
+Because $\varepsilon$ is antisymmetric and satisfies
+$\varepsilon\,\varepsilon^{\mathsf T}=I_2$, its components obey
+\[
+\sum_{x\in\{0,1\}} \varepsilon_{a x}\,\varepsilon_{x b} = \delta_{ab}.
+\tag{$\ast$}
+\]
+This identity is purely numeric: it states that when the middle index $x$ is
+summed over, the product $\varepsilon_{a x}\varepsilon_{x b}$ is nonzero only
+when $a=b$.
+
+\paragraph{Iterative elimination.}
+In the cycle sum $S(C)$, successive factors share exactly one index.
+Using $(\ast)$ to sum over those shared variables collapses pairs of
+$\varepsilon$'s into Kronecker deltas:
+\[
+\sum_{x_{v_2}}\varepsilon_{x_{v_1}x_{v_2}}\varepsilon_{x_{v_2}x_{v_3}}
+=\delta_{x_{v_1}x_{v_3}},
+\]
+and repeating this contraction around the cycle enforces equality of all
+remaining indices. After all internal variables are eliminated, only one free
+binary variable (say $x_{v_1}\in\{0,1\}$) remains, giving
+\[
+S(C)=\sum_{x_{v_1}\in\{0,1\}}1=2.
+\]
+
+\paragraph{Result.}
+Thus each closed cycle in $m\cup m'$ contributes a scalar value $S(C)=2$ to the
+overlap, independent of its length. The factor $2$ arises from the two possible
+assignments of the common spin shared by all vertices in the cycle.
+
+
+\paragraph{Final boxed result.}
+Combining the cycle factorization with $S(C)=2$ for each of the $\ell$ disjoint cycles in $m\cup m'$, we obtain
+\[
+\boxed{\ \ip{\Phi_m}{\Phi_{m'}}\;=\;2^{\,\ell}\,2^{-n/2}\;=\;2^{\,\ell - n/2}\ }\,,
+\]
+where $\ell$ is the number of cycles in the disjoint union $m\cup m'$.
+
+\pagebreak 
+
+\section*{Extending to maximal (not necessarily perfect) matchings}
+
+\paragraph{State convention.}
+For a (maximal) matching $m=\{(a_1,b_1),\dots,(a_k,b_k)\}$ on $[n]$,
+let $V_m=\{a_1,b_1,\dots,a_k,b_k\}$ and define
+\[
+\ket{\rho_m}
+=\Bigl(\bigotimes_{(a,b)\in m}\ket{\psi^-}_{ab}\Bigr)
+\otimes \Bigl(\bigotimes_{u\in [n]\setminus V_m}\ket{0}_u\Bigr),
+\qquad
+\ket{\psi^-}=\tfrac{1}{\sqrt{2}}(\ket{01}-\ket{10}).
+\]
+
+\paragraph{Zero-overlap criterion.}
+If $V_m\neq V_{m'}$ then $\braket{\rho_m|\rho_{m'}}=0$.
+Indeed, pick $u\in V_m\triangle V_{m'}$. WLOG $u\in V_m$ and $u\notin V_{m'}$.
+Then in the inner product one factor is $\bra{\psi^-}_{uv}$ (for the unique $v$ paired with $u$ in $m$)
+and the other gives $\ket{0}_u\otimes(\cdots)_v$, so
+\[
+\bra{0}_u\bra{\cdots}_v\ \ket{\psi^-}_{uv}
+=\tfrac{1}{\sqrt{2}}\bra{\cdots}_v\ket{1}_v=0,
+\]
+since $\ket{\cdots}_v=\ket{0}_v$ by our convention on unmatched sites.
+
+\paragraph{Reduction to the covered subset.}
+Assume $V_m=V_{m'}=:S$ with $|S|=2k$.
+On $S$ both $m$ and $m'$ are \emph{perfect} matchings (of the induced set $S$), and the
+outside qubits all contribute $\prod_{u\notin S}\braket{0|0}=1$.
+Hence
+\[
+\braket{\rho_m|\rho_{m'}}=\braket{\Phi_m|\Phi_{m'}},
+\qquad
+\ket{\Phi_m}=\bigotimes_{(a,b)\in m}\ket{\psi^-}_{ab}
+\ \text{ on the register } S.
+\]
+
+\paragraph{Cycle decomposition on $S$.}
+Superimpose $m$ and $m'$ on $S$. Each vertex has degree $2$ (one edge from each matching),
+so $m\cup m'$ decomposes into $\ell=\ell(m,m')$ disjoint even cycles
+$C_1,\dots,C_\ell$ with lengths $|C_i|=2r_i$ and $\sum_i r_i=k$.
+
+\paragraph{Main formula.}
+Exactly as in the perfect-matching case, each cycle evaluates to $2$, so
+\[
+\boxed{\ \braket{\rho_m|\rho_{m'}}=
+\begin{cases}
+2^{\,\ell(m,m')-k}, & \text{if } V_m=V_{m'},\ k=|m|=|m'|,\\[3pt]
+0, & \text{otherwise.}
+\end{cases}\ }
+\]
+
+\paragraph{Remarks.}
+(i) If $|m|\neq |m'|$ then $|V_m|\neq |V_{m'}|$, hence the overlap is $0$.
+(ii) The exponent $k$ is the number of singlet pairs (i.e.\ half the size of $S$).
+(iii) If a different filler product state is used on unmatched sites, replace the zero-overlap
+argument accordingly; for the choice $\ket{0}^{\otimes (n-2k)}$ above, the criterion is sharp.
+
 
 
 
