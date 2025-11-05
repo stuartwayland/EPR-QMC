@@ -1,0 +1,95 @@
+% Max-Cut Hamiltonian notes
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{braket}
+
+% Dirac notation shortcuts
+\newcommand{\ip}[2]{\langle #1 \mid #2 \rangle}
+
+
+\begin{document}
+\section*{Reduction of QMC Hamiltonian to the Heisenberg XXX Chain}
+
+Let $C_L$ denote the cycle graph on $L$ vertices with periodic boundary
+conditions $(i+L \equiv i)$.
+For each edge $(i,i+1)$ define the two-qubit operator
+\[
+H_{i,i+1}
+\;=\;
+\frac{1}{4}\!\left(
+I
+- X_i X_{i+1}
+- Y_i Y_{i+1}
+- Z_i Z_{i+1}
+\right),
+\]
+so that the total QMC Hamiltonian is
+\[
+H_{\mathrm{QMC}}
+\;=\;
+\sum_{i=1}^{L} H_{i,i+1}
+\;=\;
+\frac{1}{4}\sum_{i=1}^{L}
+\!\left(
+I
+- X_i X_{i+1}
+- Y_i Y_{i+1}
+- Z_i Z_{i+1}
+\right).
+\]
+
+Introduce the spin operators
+\[
+S_i^{x}=\tfrac{1}{2}X_i,\qquad
+S_i^{y}=\tfrac{1}{2}Y_i,\qquad
+S_i^{z}=\tfrac{1}{2}Z_i,
+\qquad
+\bm S_i=(S_i^{x},S_i^{y},S_i^{z}).
+\]
+Then
+\[
+\bm S_i\!\cdot\!\bm S_{i+1}
+=
+S_i^{x}S_{i+1}^{x}
++S_i^{y}S_{i+1}^{y}
++S_i^{z}S_{i+1}^{z}
+=\frac{1}{4}\!\left(
+X_i X_{i+1}
++Y_i Y_{i+1}
++Z_i Z_{i+1}
+\right).
+\]
+
+Substituting into $H_{\mathrm{QMC}}$ gives
+\[
+H_{\mathrm{QMC}}
+=
+\frac{1}{4}\sum_{i=1}^{L} I
+\;-\;
+\sum_{i=1}^{L} \bm S_i\!\cdot\!\bm S_{i+1}
+=
+\frac{L}{4}I
+\;-\;
+H_{\mathrm{XXX}},
+\]
+where
+\[
+H_{\mathrm{XXX}}
+\;=\;
+\sum_{i=1}^{L} \bm S_i\!\cdot\!\bm S_{i+1}
+\]
+is the spin-$\tfrac12$ isotropic Heisenberg (XXX) Hamiltonian
+with periodic boundary conditions.
+
+Hence
+\[
+E_{\mathrm{QMC}}^{\max}(L)
+\;=\;
+\frac{L}{4}
+-
+E_{\mathrm{XXX}}^{\min}(L),
+\]
+so maximizing the QMC objective is equivalent to finding
+the antiferromagnetic ground state of the XXX chain.
+\end{document}
