@@ -1,95 +1,325 @@
-% Max-Cut Hamiltonian notes
+% % Max-Cut Hamiltonian notes
+% \documentclass[11pt]{article}
+% \usepackage[margin=1in]{geometry}
+% % (removed duplicate \documentclass[12pt]{article})
+
+% % === Core math packages ===
+% \usepackage{amsmath, amssymb, amsthm, bm}
+
+% % === Optional but common ===
+% \usepackage{physics}    % for \dv, \ket{}, \bra{}, etc. (not strictly needed here)
+% \usepackage{braket}     % lightweight alternative if you only need bras/kets
+
+% % === Fonts and symbols ===
+% \usepackage{bbm}        % for identity operator \mathbbm{1} if you prefer it to I
+% \usepackage{mathtools}  % math enhancements (e.g., \coloneqq)
+
+% % === Optional for small spacing improvements ===
+% \usepackage{microtype}
+
+
+
+% \begin{document}
+% \section*{Reduction of QMC Hamiltonian to the Heisenberg XXX Chain}
+
+% Let $C_L$ denote the cycle graph on $L$ vertices with periodic boundary
+% conditions $(i+L \equiv i)$.
+% For each edge $(i,i+1)$ define the two-qubit operator
+% \[
+% H_{i,i+1}
+% \;=\;
+% \frac{1}{4}\!\left(
+% I
+% - X_i X_{i+1}
+% - Y_i Y_{i+1}
+% - Z_i Z_{i+1}
+% \right),
+% \]
+% so that the total QMC Hamiltonian is
+% \[
+% H_{\mathrm{QMC}}
+% \;=\;
+% \sum_{i=1}^{L} H_{i,i+1}
+% \;=\;
+% \frac{1}{4}\sum_{i=1}^{L}
+% \!\left(
+% I
+% - X_i X_{i+1}
+% - Y_i Y_{i+1}
+% - Z_i Z_{i+1}
+% \right).
+% \]
+
+% Introduce the spin operators
+% \[
+% S_i^{x}=\tfrac{1}{2}X_i,\qquad
+% S_i^{y}=\tfrac{1}{2}Y_i,\qquad
+% S_i^{z}=\tfrac{1}{2}Z_i,
+% \qquad
+% \bm S_i=(S_i^{x},S_i^{y},S_i^{z}).
+% \]
+% Then
+% \[
+% \bm S_i\!\cdot\!\bm S_{i+1}
+% =
+% S_i^{x}S_{i+1}^{x}
+% +S_i^{y}S_{i+1}^{y}
+% +S_i^{z}S_{i+1}^{z}
+% =\frac{1}{4}\!\left(
+% X_i X_{i+1}
+% +Y_i Y_{i+1}
+% +Z_i Z_{i+1}
+% \right).
+% \]
+
+% Substituting into $H_{\mathrm{QMC}}$ gives
+% \[
+% H_{\mathrm{QMC}}
+% =
+% \frac{1}{4}\sum_{i=1}^{L} I
+% \;-\;
+% \sum_{i=1}^{L} \bm S_i\!\cdot\!\bm S_{i+1}
+% =
+% \frac{L}{4}I
+% \;-\;
+% H_{\mathrm{XXX}},
+% \]
+% where
+% \[
+% H_{\mathrm{XXX}}
+% \;=\;
+% \sum_{i=1}^{L} \bm S_i\!\cdot\!\bm S_{i+1}
+% \]
+% is the spin-$\tfrac12$ isotropic Heisenberg (XXX) Hamiltonian
+% with periodic boundary conditions.
+
+% Hence
+% \[
+% E_{\mathrm{QMC}}^{\max}(L)
+% \;=\;
+% \frac{L}{4}
+% -
+% E_{\mathrm{XXX}}^{\min}(L),
+% \]
+% so maximizing the QMC objective is equivalent to finding
+% the antiferromagnetic ground state of the XXX chain.
+
+% \section*{Bridge: Bethe Ansatz and Matchings on the Cycle Graph}
+
+% Consider the QMC Hamiltonian on the even cycle $C_L$,
+% \[
+% H_{\mathrm{QMC}}
+% =\sum_{i=1}^{L} e_i,
+% \qquad
+% e_i
+% =\frac{1}{4}\!\left(I
+% - X_iX_{i+1}
+% - Y_iY_{i+1}
+% - Z_iZ_{i+1}\right),
+% \]
+% with periodic $i+L\equiv i$.
+% Each $e_i$ is the projector onto the singlet subspace
+% of qubits $(i,i+1)$:
+% \[
+% e_i = \dyad{\psi^-_{i,i+1}},
+% \qquad
+% \ket{\psi^-_{a,b}}
+% =\tfrac{1}{\sqrt{2}}\!\left(\ket{01}-\ket{10}\right)_{ab}.
+% \]
+
+% \subsection*{Valence-Bond (VB) Basis and Matchings}
+
+% A \emph{perfect matching} $M$ of $\{1,\dots,L\}$ is a partition into
+% $L/2$ disjoint pairs $(a,b)$.
+% Each matching defines a valence-bond state
+% \[
+% \ket{\mathrm{VB}(M)}
+% =\bigotimes_{(a,b)\in M}
+% \ket{\psi^-_{a,b}}.
+% \]
+% The collection of all such $\ket{\mathrm{VB}(M)}$ spans
+% the total-spin singlet subspace of $(\mathbb{C}^2)^{\!\otimes L}$.
+
+% \subsection*{Temperley--Lieb Action}
+
+% The operators $\{e_i\}$ satisfy the
+% Temperley--Lieb relations
+% \[
+% e_i^2 = e_i,\qquad
+% e_i e_{i\pm1} e_i = e_i,\qquad
+% [e_i,e_j]=0\quad (|i-j|>1).
+% \]
+% Their action on the VB basis is purely combinatorial:
+% \begin{align*}
+% e_i\ket{\mathrm{VB}(M)}
+% &=
+% \begin{cases}
+% \ket{\mathrm{VB}(M)}, & (i,i{+}1)\in M,\\[3pt]
+% \ket{\mathrm{VB}(M')}, & \text{otherwise,}
+% \end{cases}
+% \end{align*}
+% where $M'$ is obtained from $M$ by reconnecting the two bonds
+% that meet sites $i$ and $i{+}1$.
+% Thus $H_{\mathrm{QMC}}$ acts as a
+% local ``reconnection'' operator on matchings.
+
+% \subsection*{RVB Superposition and Bethe Ground State}
+
+% Because $\{e_i\}$ mix matchings,
+% no single $\ket{\mathrm{VB}(M)}$ is an eigenstate.
+% The true ground state of
+% $H_{\mathrm{QMC}}$ (equivalently of the XXX chain)
+% is a resonating valence-bond (RVB) superposition
+% \[
+% \ket{\Psi_0}
+% =\sum_{M} \psi(M)\,\ket{\mathrm{VB}(M)},
+% \]
+% with amplitudes $\psi(M)$ determined implicitly by
+% the Bethe-ansatz wavefunction of the XXX model.
+% Expectation values in $\ket{\Psi_0}$ correspond to probabilities
+% over matchings:
+% \[
+% \ev{e_i}{\Psi_0}
+% =
+% \sum_{M}
+% |\psi(M)|^2\,\mathbf{1}\!\bigl[(i,i{+}1)\in M\bigr].
+% \]
+
+% \subsection*{Edge Occupancy from Bethe Ansatz}
+
+% From the Bethe ground-state energy density
+% $e_0 = \tfrac{1}{4} - \ln 2$ for the XXX chain,
+% and the mapping
+% $H_{\mathrm{QMC}}=\tfrac{L}{4}I-H_{\mathrm{XXX}}$,
+% one finds
+% \[
+% \frac{1}{L}\sum_{i=1}^{L}\ev{e_i}{\Psi_0}
+% =\ln 2.
+% \]
+% Hence the Bethe ansatz determines the stationary
+% distribution over perfect matchings in which, on average,
+% each edge of the cycle is occupied by a singlet
+% with probability $\ln 2$.
+% This provides a direct combinatorial interpretation
+% of the Bethe ground state as an optimal
+% superposition over all matchings of $C_L$.
+
+
+% \end{document}
 \documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,bm}
 \usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb,amsfonts}
-\usepackage{braket}
 
-% Dirac notation shortcuts
-\newcommand{\ip}[2]{\langle #1 \mid #2 \rangle}
-
+\newcommand{\ket}[1]{\left|#1\right\rangle}
+\newcommand{\bra}[1]{\left\langle#1\right|}
+\newcommand{\braket}[2]{\left\langle #1 \middle| #2 \right\rangle}
 
 \begin{document}
-\section*{Reduction of QMC Hamiltonian to the Heisenberg XXX Chain}
 
-Let $C_L$ denote the cycle graph on $L$ vertices with periodic boundary
-conditions $(i+L \equiv i)$.
-For each edge $(i,i+1)$ define the two-qubit operator
-\[
-H_{i,i+1}
-\;=\;
-\frac{1}{4}\!\left(
-I
-- X_i X_{i+1}
-- Y_i Y_{i+1}
-- Z_i Z_{i+1}
-\right),
-\]
-so that the total QMC Hamiltonian is
-\[
-H_{\mathrm{QMC}}
-\;=\;
-\sum_{i=1}^{L} H_{i,i+1}
-\;=\;
-\frac{1}{4}\sum_{i=1}^{L}
-\!\left(
-I
-- X_i X_{i+1}
-- Y_i Y_{i+1}
-- Z_i Z_{i+1}
-\right).
-\]
+\begin{center}
+\Large QMC on Even Cycles
+\end{center}
 
-Introduce the spin operators
-\[
-S_i^{x}=\tfrac{1}{2}X_i,\qquad
-S_i^{y}=\tfrac{1}{2}Y_i,\qquad
-S_i^{z}=\tfrac{1}{2}Z_i,
-\qquad
-\bm S_i=(S_i^{x},S_i^{y},S_i^{z}).
-\]
-Then
-\[
-\bm S_i\!\cdot\!\bm S_{i+1}
-=
-S_i^{x}S_{i+1}^{x}
-+S_i^{y}S_{i+1}^{y}
-+S_i^{z}S_{i+1}^{z}
-=\frac{1}{4}\!\left(
-X_i X_{i+1}
-+Y_i Y_{i+1}
-+Z_i Z_{i+1}
-\right).
-\]
+\section*{1. QMC Hamiltonian on an even cycle and mapping to XXX}
+Let $C_{2L}$ be the even cycle with sites $i=1,\dots,2L$ and periodic boundary $i\equiv i+2L$.
+The (sign-problem-free) ``QMC'' Hamiltonian we use is the antiferromagnetic Heisenberg (XXX) model
+\begin{equation}
+  H_{\mathrm{XXX}}
+  \;=\;
+  J\sum_{i=1}^{2L} \bm S_i\cdot \bm S_{i+1},
+  \qquad J>0,\quad \bm S_i=\tfrac12(\sigma_i^x,\sigma_i^y,\sigma_i^z).
+  \label{eq:XXX}
+\end{equation}
+This is unfrustrated on $C_{2L}$ (bipartite, $|A|=|B|=L$) and SU(2)-invariant. Total spin $S_{\rm tot}$ is a good quantum number; by Lieb--Mattis on balanced bipartite graphs, the ground state is a singlet: $S_{\rm tot}=0$.
 
-Substituting into $H_{\mathrm{QMC}}$ gives
-\[
-H_{\mathrm{QMC}}
-=
-\frac{1}{4}\sum_{i=1}^{L} I
-\;-\;
-\sum_{i=1}^{L} \bm S_i\!\cdot\!\bm S_{i+1}
-=
-\frac{L}{4}I
-\;-\;
-H_{\mathrm{XXX}},
-\]
-where
-\[
-H_{\mathrm{XXX}}
-\;=\;
-\sum_{i=1}^{L} \bm S_i\!\cdot\!\bm S_{i+1}
-\]
-is the spin-$\tfrac12$ isotropic Heisenberg (XXX) Hamiltonian
-with periodic boundary conditions.
+\smallskip
+\noindent
+\emph{Remark on QMC/EPR variants.}
+If one starts from a ``quantum Max-Cut'' form with $\sigma^x_i\sigma^x_{i+1}$ couplings, a global basis rotation around the $y$ axis maps it to \eqref{eq:XXX} up to constants on the even cycle. Hence we take \eqref{eq:XXX} as the canonical form.
 
-Hence
-\[
-E_{\mathrm{QMC}}^{\max}(L)
-\;=\;
-\frac{L}{4}
--
-E_{\mathrm{XXX}}^{\min}(L),
-\]
-so maximizing the QMC objective is equivalent to finding
-the antiferromagnetic ground state of the XXX chain.
+\section*{2. Bethe ansatz solution (periodic, even length, $S^z_{\rm tot}=0$)}
+Work in the computational basis with $M=L$ flipped spins:
+\begin{equation}
+  \ket{\Psi}
+  = \sum_{1\le x_1<\cdots<x_M\le 2L}
+  \psi(x_1,\dots,x_M)\, S^-_{x_1}\cdots S^-_{x_M}\ket{\!\uparrow^{\otimes 2L}\!}.
+\end{equation}
+The \emph{coordinate Bethe ansatz} amplitude is
+\begin{equation}
+  \psi(x_1,\dots,x_M)=
+  \sum_{P\in S_M} A(P)\,
+  \exp\!\Big(i\sum_{j=1}^{M} k_{P_j}\, x_j\Big),
+  \qquad
+  A(P)=\prod_{1\le j<\ell\le M}
+  \frac{\sin\frac{k_{P_j}-k_{P_\ell}}{2}-i}{\sin\frac{k_{P_j}-k_{P_\ell}}{2}+i},
+\end{equation}
+with quasi-momenta $\{k_j\}_{j=1}^{M}$ solving the Bethe equations
+\begin{equation}
+  e^{i k_j (2L)}=\prod_{\ell\neq j}
+  \frac{\sin\frac{k_j-k_\ell}{2}+i}{\sin\frac{k_j-k_\ell}{2}-i},
+  \qquad j=1,\dots,M.
+\end{equation}
+For the ground state, the $k_j$ are real and symmetrically fill a Fermi sea. The ground-state energy is
+\begin{equation}
+  E_0
+  = \sum_{j=1}^{M}\,\big( \tfrac{J}{2}(\cos k_j -1)\big),
+\end{equation}
+and the state is a unique translationally invariant singlet ($S_{\rm tot}=0$).
+
+\section*{3. Valence-bond (VB) basis for the singlet sector}
+Let $\mathcal{M}$ be the set of perfect matchings $M$ on $\{1,\dots,2L\}$. For $(i,j)\in M$ define the singlet on sites $i,j$:
+\(
+\ket{\psi^-_{ij}}=\tfrac{1}{\sqrt{2}}\big(\ket{\uparrow_i\downarrow_j}-\ket{\downarrow_i\uparrow_j}\big).
+\)
+A VB basis vector is the tensor product
+\begin{equation}
+  \ket{\mathrm{VB}(M)} \;=\; \bigotimes_{(i,j)\in M}\ket{\psi^-_{ij}}.
+\end{equation}
+The set $\{\ket{\mathrm{VB}(M)}: M\in\mathcal{M}\}$ spans the full $S_{\rm tot}=0$ subspace (overcomplete). Since the Bethe ground state is a singlet, it admits an exact expansion
+\begin{equation}
+  \ket{\Psi_0}
+  \;=\;
+  \sum_{M\in\mathcal{M}} \psi(M)\,\ket{\mathrm{VB}(M)}.
+  \label{eq:VBexpansion}
+\end{equation}
+
+\section*{4. Distance on the even cycle and the amplitude-product ansatz}
+On the ring, define the \emph{cycle distance} between sites $i,j$:
+\begin{equation}
+  r_{ij} \;=\; \min\{|i-j|,\;2L-|i-j|\}\in\{1,\dots,L\}.
+\end{equation}
+Empirically and from field-theory/Bethe correlators, the single-bond length distribution in the ground state obeys
+\begin{equation}
+  P(r)\;\equiv\; \frac{1}{2L}\,\sum_{i=1}^{2L}\sum_{j:\, r_{ij}=r}
+  \big\langle \Psi_0 \big| \hat n_{ij} \big|\Psi_0\big\rangle
+  \;\sim\; \frac{c}{r^2}\qquad (1\ll r\ll L),
+\end{equation}
+where $\hat n_{ij}$ projects onto the event that $i$ and $j$ are paired in a VB configuration within the (overlap) estimator.
+This motivates the \emph{amplitude-product RVB} form for the VB coefficients in \eqref{eq:VBexpansion}:
+\begin{equation}
+  \boxed{\quad
+  \psi(M) \;\propto\; \prod_{(i,j)\in M} h(r_{ij}),
+  \qquad
+  h(r)\;\approx\; \frac{(-1)^r}{r^{\alpha}},\ \ \alpha\simeq 1,
+  \quad}
+  \label{eq:APRVB}
+\end{equation}
+so that the Born weights $|\psi(M)|^2$ produce $P(r)\sim r^{-2}$ asymptotically. The staggered sign $(-1)^r$ enforces bipartite Marshall signs (sites alternate along the ring).
+
+\paragraph{Normalization and calibration.}
+Let $Z=\sum_{M}\prod_{(i,j)\in M}|h(r_{ij})|^2$. Then the induced bond-length law satisfies
+\begin{equation}
+  P(r)\;=\;\frac{1}{2L}\sum_{i=1}^{2L}\sum_{j:\,r_{ij}=r}\;
+  \frac{1}{Z}\sum_{M\ni (i,j)} \prod_{(a,b)\in M}|h(r_{ab})|^2,
+  \qquad \sum_{r=1}^{L}P(r)=1.
+\end{equation}
+Choosing $h(r)\propto r^{-1}$ matches the Bethe prediction $P(r)\sim r^{-2}$ at large $r$; short-distance corrections can be absorbed by a cutoff or a prefactor $h(r)=r^{-1}e^{-r/\xi}$ with $\xi\gg 1$.
+
+\section*{5. Summary (chain $\to$ Bethe $\to$ VB amplitudes)}
+\begin{itemize}
+  \item On the even cycle, the antiferromagnetic XXX Hamiltonian \eqref{eq:XXX} is SU(2)-invariant and unfrustrated; the ground state is a unique singlet.
+  \item The Bethe ansatz yields the exact ground state in the $M=L$ sector and predicts algebraic spin correlations; in VB language this corresponds to an algebraic tail $P(r)\sim r^{-2}$ of bond lengths.
+  \item Expanding the Bethe singlet in the VB basis \eqref{eq:VBexpansion} is well approximated (and asymptotically matched) by the amplitude-product form \eqref{eq:APRVB} with $h(r)\propto r^{-1}$ (up to short-distance normalization and Marshall signs).
+\end{itemize}
+
 \end{document}
