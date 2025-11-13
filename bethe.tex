@@ -1,211 +1,3 @@
-% % Max-Cut Hamiltonian notes
-% \documentclass[11pt]{article}
-% \usepackage[margin=1in]{geometry}
-% % (removed duplicate \documentclass[12pt]{article})
-
-% % === Core math packages ===
-% \usepackage{amsmath, amssymb, amsthm, bm}
-
-% % === Optional but common ===
-% \usepackage{physics}    % for \dv, \ket{}, \bra{}, etc. (not strictly needed here)
-% \usepackage{braket}     % lightweight alternative if you only need bras/kets
-
-% % === Fonts and symbols ===
-% \usepackage{bbm}        % for identity operator \mathbbm{1} if you prefer it to I
-% \usepackage{mathtools}  % math enhancements (e.g., \coloneqq)
-
-% % === Optional for small spacing improvements ===
-% \usepackage{microtype}
-
-
-
-% \begin{document}
-% \section*{Reduction of QMC Hamiltonian to the Heisenberg XXX Chain}
-
-% Let $C_L$ denote the cycle graph on $L$ vertices with periodic boundary
-% conditions $(i+L \equiv i)$.
-% For each edge $(i,i+1)$ define the two-qubit operator
-% \[
-% H_{i,i+1}
-% \;=\;
-% \frac{1}{4}\!\left(
-% I
-% - X_i X_{i+1}
-% - Y_i Y_{i+1}
-% - Z_i Z_{i+1}
-% \right),
-% \]
-% so that the total QMC Hamiltonian is
-% \[
-% H_{\mathrm{QMC}}
-% \;=\;
-% \sum_{i=1}^{L} H_{i,i+1}
-% \;=\;
-% \frac{1}{4}\sum_{i=1}^{L}
-% \!\left(
-% I
-% - X_i X_{i+1}
-% - Y_i Y_{i+1}
-% - Z_i Z_{i+1}
-% \right).
-% \]
-
-% Introduce the spin operators
-% \[
-% S_i^{x}=\tfrac{1}{2}X_i,\qquad
-% S_i^{y}=\tfrac{1}{2}Y_i,\qquad
-% S_i^{z}=\tfrac{1}{2}Z_i,
-% \qquad
-% \bm S_i=(S_i^{x},S_i^{y},S_i^{z}).
-% \]
-% Then
-% \[
-% \bm S_i\!\cdot\!\bm S_{i+1}
-% =
-% S_i^{x}S_{i+1}^{x}
-% +S_i^{y}S_{i+1}^{y}
-% +S_i^{z}S_{i+1}^{z}
-% =\frac{1}{4}\!\left(
-% X_i X_{i+1}
-% +Y_i Y_{i+1}
-% +Z_i Z_{i+1}
-% \right).
-% \]
-
-% Substituting into $H_{\mathrm{QMC}}$ gives
-% \[
-% H_{\mathrm{QMC}}
-% =
-% \frac{1}{4}\sum_{i=1}^{L} I
-% \;-\;
-% \sum_{i=1}^{L} \bm S_i\!\cdot\!\bm S_{i+1}
-% =
-% \frac{L}{4}I
-% \;-\;
-% H_{\mathrm{XXX}},
-% \]
-% where
-% \[
-% H_{\mathrm{XXX}}
-% \;=\;
-% \sum_{i=1}^{L} \bm S_i\!\cdot\!\bm S_{i+1}
-% \]
-% is the spin-$\tfrac12$ isotropic Heisenberg (XXX) Hamiltonian
-% with periodic boundary conditions.
-
-% Hence
-% \[
-% E_{\mathrm{QMC}}^{\max}(L)
-% \;=\;
-% \frac{L}{4}
-% -
-% E_{\mathrm{XXX}}^{\min}(L),
-% \]
-% so maximizing the QMC objective is equivalent to finding
-% the antiferromagnetic ground state of the XXX chain.
-
-% \section*{Bridge: Bethe Ansatz and Matchings on the Cycle Graph}
-
-% Consider the QMC Hamiltonian on the even cycle $C_L$,
-% \[
-% H_{\mathrm{QMC}}
-% =\sum_{i=1}^{L} e_i,
-% \qquad
-% e_i
-% =\frac{1}{4}\!\left(I
-% - X_iX_{i+1}
-% - Y_iY_{i+1}
-% - Z_iZ_{i+1}\right),
-% \]
-% with periodic $i+L\equiv i$.
-% Each $e_i$ is the projector onto the singlet subspace
-% of qubits $(i,i+1)$:
-% \[
-% e_i = \dyad{\psi^-_{i,i+1}},
-% \qquad
-% \ket{\psi^-_{a,b}}
-% =\tfrac{1}{\sqrt{2}}\!\left(\ket{01}-\ket{10}\right)_{ab}.
-% \]
-
-% \subsection*{Valence-Bond (VB) Basis and Matchings}
-
-% A \emph{perfect matching} $M$ of $\{1,\dots,L\}$ is a partition into
-% $L/2$ disjoint pairs $(a,b)$.
-% Each matching defines a valence-bond state
-% \[
-% \ket{\mathrm{VB}(M)}
-% =\bigotimes_{(a,b)\in M}
-% \ket{\psi^-_{a,b}}.
-% \]
-% The collection of all such $\ket{\mathrm{VB}(M)}$ spans
-% the total-spin singlet subspace of $(\mathbb{C}^2)^{\!\otimes L}$.
-
-% \subsection*{Temperley--Lieb Action}
-
-% The operators $\{e_i\}$ satisfy the
-% Temperley--Lieb relations
-% \[
-% e_i^2 = e_i,\qquad
-% e_i e_{i\pm1} e_i = e_i,\qquad
-% [e_i,e_j]=0\quad (|i-j|>1).
-% \]
-% Their action on the VB basis is purely combinatorial:
-% \begin{align*}
-% e_i\ket{\mathrm{VB}(M)}
-% &=
-% \begin{cases}
-% \ket{\mathrm{VB}(M)}, & (i,i{+}1)\in M,\\[3pt]
-% \ket{\mathrm{VB}(M')}, & \text{otherwise,}
-% \end{cases}
-% \end{align*}
-% where $M'$ is obtained from $M$ by reconnecting the two bonds
-% that meet sites $i$ and $i{+}1$.
-% Thus $H_{\mathrm{QMC}}$ acts as a
-% local ``reconnection'' operator on matchings.
-
-% \subsection*{RVB Superposition and Bethe Ground State}
-
-% Because $\{e_i\}$ mix matchings,
-% no single $\ket{\mathrm{VB}(M)}$ is an eigenstate.
-% The true ground state of
-% $H_{\mathrm{QMC}}$ (equivalently of the XXX chain)
-% is a resonating valence-bond (RVB) superposition
-% \[
-% \ket{\Psi_0}
-% =\sum_{M} \psi(M)\,\ket{\mathrm{VB}(M)},
-% \]
-% with amplitudes $\psi(M)$ determined implicitly by
-% the Bethe-ansatz wavefunction of the XXX model.
-% Expectation values in $\ket{\Psi_0}$ correspond to probabilities
-% over matchings:
-% \[
-% \ev{e_i}{\Psi_0}
-% =
-% \sum_{M}
-% |\psi(M)|^2\,\mathbf{1}\!\bigl[(i,i{+}1)\in M\bigr].
-% \]
-
-% \subsection*{Edge Occupancy from Bethe Ansatz}
-
-% From the Bethe ground-state energy density
-% $e_0 = \tfrac{1}{4} - \ln 2$ for the XXX chain,
-% and the mapping
-% $H_{\mathrm{QMC}}=\tfrac{L}{4}I-H_{\mathrm{XXX}}$,
-% one finds
-% \[
-% \frac{1}{L}\sum_{i=1}^{L}\ev{e_i}{\Psi_0}
-% =\ln 2.
-% \]
-% Hence the Bethe ansatz determines the stationary
-% distribution over perfect matchings in which, on average,
-% each edge of the cycle is occupied by a singlet
-% with probability $\ln 2$.
-% This provides a direct combinatorial interpretation
-% of the Bethe ground state as an optimal
-% superposition over all matchings of $C_L$.
-
-
-% \end{document}
 \documentclass[11pt]{article}
 \usepackage{amsmath,amssymb,amsthm,bm}
 \usepackage[margin=1in]{geometry}
@@ -221,21 +13,109 @@
 \end{center}
 
 \section*{1. QMC Hamiltonian on an even cycle and mapping to XXX}
-Let $C_{2L}$ be the even cycle with sites $i=1,\dots,2L$ and periodic boundary $i\equiv i+2L$.
-The (sign-problem-free) ``QMC'' Hamiltonian we use is the antiferromagnetic Heisenberg (XXX) model
+
+Let $C_{2L}$ be the even cycle with sites $i=1,\dots,2L$ and periodic boundary conditions $i\equiv i+2L$.
+We start with the benchmark \emph{Quantum Max-Cut} (QMC) Hamiltonian (on a graph $G$): :
 \begin{equation}
-  H_{\mathrm{XXX}}
+  H_{\mathrm{QMC}}
   \;=\;
-  J\sum_{i=1}^{2L} \bm S_i\cdot \bm S_{i+1},
-  \qquad J>0,\quad \bm S_i=\tfrac12(\sigma_i^x,\sigma_i^y,\sigma_i^z).
-  \label{eq:XXX}
+  \sum_{(i,j)\in E(G)} w_{ij}\,
+  \frac{1}{4}\!\left(
+    I - X_i X_j - Y_i Y_j - Z_i Z_j
+  \right),
+  \label{eq:QMC}
 \end{equation}
-This is unfrustrated on $C_{2L}$ (bipartite, $|A|=|B|=L$) and SU(2)-invariant. Total spin $S_{\rm tot}$ is a good quantum number; by Lieb--Mattis on balanced bipartite graphs, the ground state is a singlet: $S_{\rm tot}=0$.
+where $X_i,Y_i,Z_i$ are the Pauli operators on qubit $i$.
+For our case, the graph is the even cycle $G=C_{2L}$ with uniform edge weights $w_{ij}=J>0$, so
+\begin{equation}
+  H_{\mathrm{QMC}}
+  =
+  \frac{J}{4}\sum_{i=1}^{2L}
+  \!\left(
+    I - X_i X_{i+1} - Y_i Y_{i+1} - Z_i Z_{i+1}
+  \right).
+  \label{eq:QMC_cycle}
+\end{equation}
+The constant term $\frac{J}{4}\sum_i I$ merely shifts the energy by $J L$; the nontrivial dynamics arise from
+\begin{equation}
+  \widetilde H_{\mathrm{QMC}}
+  =
+  -\frac{J}{4}\sum_{i=1}^{2L}
+  \!\left(
+    X_i X_{i+1} + Y_i Y_{i+1} + Z_i Z_{i+1}
+  \right).
+  \label{eq:H_tilde}
+\end{equation}
 
 \smallskip
 \noindent
-\emph{Remark on QMC/EPR variants.}
-If one starts from a ``quantum Max-Cut'' form with $\sigma^x_i\sigma^x_{i+1}$ couplings, a global basis rotation around the $y$ axis maps it to \eqref{eq:XXX} up to constants on the even cycle. Hence we take \eqref{eq:XXX} as the canonical form.
+\textbf{Mapping to the Heisenberg (XXX) chain.}
+The even cycle $C_{2L}$ is bipartite, with two equal sublattices
+$A=\{1,3,5,\dots,2L-1\}$ and $B=\{2,4,6,\dots,2L\}$.
+Define a local unitary rotation on all even (i.e.\ $B$-sublattice) sites:
+\begin{equation}
+  U_i \;=\; e^{-i\frac{\pi}{2}\,Y_i},
+  \qquad i\in B,
+  \label{eq:rotation_def}
+\end{equation}
+so that
+\begin{equation}
+  U_i^\dagger X_i U_i = Z_i,
+  \quad
+  U_i^\dagger Z_i U_i = -X_i,
+  \quad
+  U_i^\dagger Y_i U_i = Y_i.
+  \label{eq:rotation_action}
+\end{equation}
+Let $U=\prod_{i\in B} U_i$ denote the global unitary acting on all even sites.
+Conjugating $\widetilde H_{\mathrm{QMC}}$ by $U$ gives
+\begin{align}
+  U^\dagger \widetilde H_{\mathrm{QMC}} U
+  &=
+  -\frac{J}{4}
+  \sum_{i=1}^{2L}
+  \!\left(
+    U^\dagger X_i X_{i+1} U
+    + U^\dagger Y_i Y_{i+1} U
+    + U^\dagger Z_i Z_{i+1} U
+  \right) \nonumber\\[3pt]
+  &=
+  +\frac{J}{4}\sum_{i=1}^{2L}
+  \!\left(
+    X_i X_{i+1} + Y_i Y_{i+1} + Z_i Z_{i+1}
+  \right)
+  \;=\;
+  J\sum_{i=1}^{2L} \bm S_i\!\cdot\!\bm S_{i+1},
+  \label{eq:H_XXX}
+\end{align}
+where $\bm S_i = \tfrac12(X_i,Y_i,Z_i)$.
+Thus, up to a constant energy shift and the overall scale $J$, the Quantum Max-Cut Hamiltonian is \emph{unitarily equivalent} to the
+antiferromagnetic Heisenberg (XXX) model:
+\begin{equation}
+  H_{\mathrm{XXX}}
+  \;=\;
+  J\sum_{i=1}^{2L} \bm S_i\!\cdot\!\bm S_{i+1},
+  \qquad J>0.
+  \label{eq:XXX}
+\end{equation}
+Because the mapping is a local SU(2) rotation, all spectral and correlation properties are preserved:
+$H_{\mathrm{QMC}}$ and $H_{\mathrm{XXX}}$ have identical eigenvalues and entanglement structure.
+
+\smallskip
+\noindent
+\textbf{Ground-state structure.}
+Since $C_{2L}$ is bipartite with $|A|=|B|=L$, the model is unfrustrated and SU(2)-invariant.
+By the Lieb--Mattis theorem on bipartite antiferromagnets,
+the ground state lies in the total-spin singlet sector $S_{\rm tot}=0$.
+
+\smallskip
+\noindent
+\textbf{Remark on QMC/EPR variants.}
+If one starts from a ``quantum Max-Cut'' variant involving only $\sigma_i^x\sigma_j^x$
+couplings (as in transverse-field or EPR-type formulations),
+an analogous sublattice rotation brings it to the isotropic XXX form~\eqref{eq:XXX}
+up to constants whenever the underlying graph is bipartite.
+Hence, for the even cycle, we adopt~\eqref{eq:XXX} as the canonical form.
 
 \section*{2. Bethe ansatz solution (periodic, even length, $S^z_{\rm tot}=0$)}
 Work in the computational basis with $M=L$ flipped spins:
@@ -283,43 +163,268 @@ The set $\{\ket{\mathrm{VB}(M)}: M\in\mathcal{M}\}$ spans the full $S_{\rm tot}=
   \label{eq:VBexpansion}
 \end{equation}
 
-\section*{4. Distance on the even cycle and the amplitude-product ansatz}
-On the ring, define the \emph{cycle distance} between sites $i,j$:
+\section*{Change of basis: Bethe (computational) $\to$ Valence--Bond (perfect matchings)}
+
+\subsection*{Valence--bond basis on the bipartite even cycle}
+Let $C_{2L}$ be bipartitioned as $A=\{1,3,\dots,2L-1\}$ and $B=\{2,4,\dots,2L\}$.
+For any perfect matching $M$ pairing each $a\in A$ to a unique $b\in B$, define the oriented
+two--site singlet (with fixed orientation $A\to B$)
 \begin{equation}
-  r_{ij} \;=\; \min\{|i-j|,\;2L-|i-j|\}\in\{1,\dots,L\}.
+  \ket{s_{ab}}
+  \;=\;\frac{1}{\sqrt{2}}\Big(\ket{\uparrow_a\downarrow_b}-\ket{\downarrow_a\uparrow_b}\Big),
+  \qquad (a,b)\in M,
 \end{equation}
-Empirically and from field-theory/Bethe correlators, the single-bond length distribution in the ground state obeys
+and the (non--normalized) valence--bond (VB) state
 \begin{equation}
-  P(r)\;\equiv\; \frac{1}{2L}\,\sum_{i=1}^{2L}\sum_{j:\, r_{ij}=r}
-  \big\langle \Psi_0 \big| \hat n_{ij} \big|\Psi_0\big\rangle
-  \;\sim\; \frac{c}{r^2}\qquad (1\ll r\ll L),
+  \ket{M} \;=\; \bigotimes_{(a,b)\in M} \ket{s_{ab}}.
 \end{equation}
-where $\hat n_{ij}$ projects onto the event that $i$ and $j$ are paired in a VB configuration within the (overlap) estimator.
-This motivates the \emph{amplitude-product RVB} form for the VB coefficients in \eqref{eq:VBexpansion}:
+The set $\{\ket{M}\}$ spans the total--singlet subspace but is non--orthogonal and overcomplete.
+With the above $A\to B$ orientation, Marshall's sign rule ensures that ground--state
+amplitudes can be chosen nonnegative in this basis.
+
+\subsection*{Bethe ansatz state in the computational basis}
+Fix $M=L$ and write the Bethe state in the $\sigma^z$ basis as
+\begin{equation}
+  \ket{\Psi}
+  \;=\;
+  \sum_{1\le x_1<\cdots<x_L\le 2L}
+  \psi(x_1,\dots,x_L)\;
+  S^-_{x_1}\cdots S^-_{x_L}\ket{\!\uparrow^{\otimes 2L}\!}
+  \;=\;
+  \sum_{\sigma\in\{\uparrow,\downarrow\}^{2L}}
+  \Psi(\sigma)\,\ket{\sigma},
+\end{equation}
+where $S_x^-=\tfrac12(\sigma_x^x-i\sigma_x^y)$ and $\Psi(\sigma)$ is nonzero only when exactly $L$
+spins are down.  (In the coordinate Bethe ansatz, $\psi(x_1,\dots,x_L)$ is a plane--wave sum with
+two--body phase shifts determined by the rapidities.)
+
+\subsection*{Overlap formula $\psi(M)=\langle M|\Psi\rangle$}
+Expanding each singlet into the $\sigma^z$ basis,
+\begin{equation}
+  \ket{s_{ab}}
+  \;=\;
+  \frac{1}{\sqrt{2}}
+  \Big(\ket{\uparrow_a\downarrow_b}-\ket{\downarrow_a\uparrow_b}\Big),
+\end{equation}
+we obtain an \emph{exact} change--of--basis formula:
 \begin{equation}
   \boxed{\quad
-  \psi(M) \;\propto\; \prod_{(i,j)\in M} h(r_{ij}),
-  \qquad
-  h(r)\;\approx\; \frac{(-1)^r}{r^{\alpha}},\ \ \alpha\simeq 1,
+  \psi(M)\;=\;\braket{M}{\Psi}
+  \;=\;2^{-L/2}\!
+  \sum_{\sigma\;\text{s.t.}\; \sigma_a\neq\sigma_b\;\forall (a,b)\in M}
+  \Bigg[
+    \prod_{(a,b)\in M}\varepsilon(\sigma_a,\sigma_b)
+  \Bigg]\,
+  \Psi(\sigma)
   \quad}
-  \label{eq:APRVB}
+  \label{eq:VBoverlap}
 \end{equation}
-so that the Born weights $|\psi(M)|^2$ produce $P(r)\sim r^{-2}$ asymptotically. The staggered sign $(-1)^r$ enforces bipartite Marshall signs (sites alternate along the ring).
-
-\paragraph{Normalization and calibration.}
-Let $Z=\sum_{M}\prod_{(i,j)\in M}|h(r_{ij})|^2$. Then the induced bond-length law satisfies
+with the \emph{dimer sign} function
 \begin{equation}
-  P(r)\;=\;\frac{1}{2L}\sum_{i=1}^{2L}\sum_{j:\,r_{ij}=r}\;
-  \frac{1}{Z}\sum_{M\ni (i,j)} \prod_{(a,b)\in M}|h(r_{ab})|^2,
-  \qquad \sum_{r=1}^{L}P(r)=1.
+  \varepsilon(\uparrow,\downarrow)=+1,\qquad
+  \varepsilon(\downarrow,\uparrow)=-1,\qquad
+  \varepsilon(\uparrow,\uparrow)=\varepsilon(\downarrow,\downarrow)=0.
 \end{equation}
-Choosing $h(r)\propto r^{-1}$ matches the Bethe prediction $P(r)\sim r^{-2}$ at large $r$; short-distance corrections can be absorbed by a cutoff or a prefactor $h(r)=r^{-1}e^{-r/\xi}$ with $\xi\gg 1$.
+Equivalently, the selection rule ``$\sigma_a\neq\sigma_b$ for all $(a,b)\in M$''
+says that only $\sigma$ with opposite spins on every matched pair contribute; the product of
+$\varepsilon$'s provides the relative sign fixed by the $A\to B$ singlet orientation.
 
-\section*{5. Summary (chain $\to$ Bethe $\to$ VB amplitudes)}
+\paragraph{Remarks.}
 \begin{itemize}
-  \item On the even cycle, the antiferromagnetic XXX Hamiltonian \eqref{eq:XXX} is SU(2)-invariant and unfrustrated; the ground state is a unique singlet.
-  \item The Bethe ansatz yields the exact ground state in the $M=L$ sector and predicts algebraic spin correlations; in VB language this corresponds to an algebraic tail $P(r)\sim r^{-2}$ of bond lengths.
-  \item Expanding the Bethe singlet in the VB basis \eqref{eq:VBexpansion} is well approximated (and asymptotically matched) by the amplitude-product form \eqref{eq:APRVB} with $h(r)\propto r^{-1}$ (up to short-distance normalization and Marshall signs).
+  \item Eq.~\eqref{eq:VBoverlap} is a constrained sum over $2^L$ configurations
+  (not $2^{2L}$): once $\sigma_a$ is chosen on $A$, each matched $b$ is forced to be the opposite.
+  \item If one writes $\Psi(\sigma)$ in the coordinate Bethe form,
+  \(\psi(x_1,\dots,x_L)=\sum_{\pi\in S_L}A(\pi)e^{i\sum_j k_{\pi(j)}x_j}\),
+  then \eqref{eq:VBoverlap} yields $\psi(M)$ as a structured linear combination of those plane waves,
+  with coefficients dictated by the matching constraints.
+  \item With the $A\to B$ orientation, $\psi(M)$ can be chosen real and (for the XXX antiferromagnet) nonnegative for the ground state.
 \end{itemize}
+
+\subsection*{Nonorthogonality and the dual VB coordinates}
+Because $\{\ket{M}\}$ is overcomplete, the overlaps $\psi(M)=\langle M|\Psi\rangle$ are not
+the unique coordinates of $\ket{\Psi}$.  Let $O_{MN}=\braket{M}{N}$ be the Gram matrix;
+on a planar bipartite lattice (including the cycle) the \emph{loop rule} gives
+\begin{equation}
+  \braket{M}{N}
+  \;=\; 2^{\ell(M,N)-L},
+\end{equation}
+where $\ell(M,N)$ is the number of disjoint loops in the transition graph formed by superimposing
+$M$ and $N$.
+Define the \emph{dual VB basis} $\{\ket{\widetilde M}\}$ by
+\begin{equation}
+  \ket{\widetilde M}\;=\;\sum_{N} \ket{N}\,(O^{-1})_{NM},
+  \qquad\text{so that}\qquad
+  \braket{\widetilde M}{N}=\delta_{MN}.
+\end{equation}
+Then the true coordinates of $\ket{\Psi}$ in this (biorthogonal) basis are
+\begin{equation}
+  c_M \;=\; \braket{\widetilde M}{\Psi}
+  \;=\; \sum_{N} (O^{-1})_{MN}\,\braket{N}{\Psi}
+  \;=\; \sum_{N} (O^{-1})_{MN}\,\psi(N).
+\end{equation}
+In particular, the singlet--sector identity resolves as
+\begin{equation}
+  \mathbb{I}_{S=0}
+  \;=\; \sum_{M}\ket{M}\bra{\widetilde M}
+  \;=\; \sum_{M,N}\ket{M}\,(O^{-1})_{MN}\bra{N}.
+\end{equation}
+
+\subsection*{Summary}
+Given the Bethe state amplitudes $\Psi(\sigma)$ in the computational basis,
+the change of basis to any VB state $\ket{M}$ is computed exactly by the constrained sum
+\eqref{eq:VBoverlap}.  If one needs bona fide coordinates in a VB representation, use the
+dual basis $\{\ket{\widetilde M}\}$ and contract with $O^{-1}$ as above.
+
+
+\section*{Quantum Max-Cut on the even cycle and the two-dimer ansatz}
+
+\paragraph{Setup.}
+Let $C_{2L}$ be the cycle with sites $1,\dots,2L$ and periodic boundary $(2L{+}1)\equiv 1$.
+We work with spin-$\tfrac12$ operators $S_i^\alpha=\tfrac12 \sigma_i^\alpha$ so that
+\[
+\mathbf S_i\!\cdot\!\mathbf S_j=\frac14\,\boldsymbol\sigma_i\!\cdot\!\boldsymbol\sigma_j.
+\]
+Denote by $P_-^{(ij)}$ the projector onto the singlet on edge $(i,j)$:
+\[
+P_-^{(ij)} \;=\; \frac14\bigl(\mathbf 1 - \boldsymbol\sigma_i\!\cdot\!\boldsymbol\sigma_j\bigr)
+\;=\; \frac14\,\mathbf 1 \;-\; \mathbf S_i\!\cdot\!\mathbf S_j.
+\]
+
+\paragraph{Hamiltonians and scaling.}
+The (nearest-neighbor) \emph{quantum Max-Cut} Hamiltonian on $C_{2L}$ is
+\[
+H_{\mathrm{QMC}} \;=\; \sum_{j=1}^{2L} P_-^{(j,j+1)}.
+\]
+With the above identity,
+\[
+H_{\mathrm{QMC}}
+\;=\; \sum_{j=1}^{2L}\!\Bigl(\frac14\mathbf 1 - \mathbf S_j\!\cdot\!\mathbf S_{j+1}\Bigr)
+\;=\; \frac{2L}{4}\,\mathbf 1 \;-\; H_{\mathrm{Heis}},
+\qquad
+H_{\mathrm{Heis}}:=\sum_{j=1}^{2L}\mathbf S_j\!\cdot\!\mathbf S_{j+1}.
+\]
+Thus the two models are \emph{affinely equivalent}:
+they have the \emph{same eigenstates}, and their spectra are related by
+\[
+E_{\mathrm{QMC}} \;=\; \frac{L}{2} - E_{\mathrm{Heis}}.
+\]
+All finite-$L$ statements for one transfer to the other via this shift.
+
+\paragraph{Two perfect matchings and the RVB doublet.}
+Let $M_A$ and $M_B$ be the two nearest-neighbor perfect matchings (dimers) on $C_{2L}$:
+\[
+M_A=\{(1,2),(3,4),\ldots,(2L-1,2L)\},\qquad
+M_B=\{(2,3),(4,5),\ldots,(2L,1)\}.
+\]
+Write $|M_A\rangle$ and $|M_B\rangle$ for the corresponding product-of-singlets VB states.
+Their overlap is
+\[
+s:=\langle M_A|M_B\rangle \;=\; 2^{1-L}.
+\]
+Define the \emph{normalized} symmetric/antisymmetric superpositions
+\[
+|\psi_\pm\rangle \;=\; \frac{|M_A\rangle \pm |M_B\rangle}{\sqrt{2(1\pm s)}}.
+\]
+
+\paragraph{Matrix elements you need once.}
+(i) On a single covering,
+\[
+\langle M_A|\,\mathbf S_j\!\cdot\!\mathbf S_{j+1}\,|M_A\rangle
+=\begin{cases}
+-\tfrac{3}{4},& (j,j{+}1)\in M_A,\\[2pt]
+0,& \text{otherwise,}
+\end{cases}
+\qquad\Rightarrow\qquad
+\langle M_A|H_{\mathrm{Heis}}|M_A\rangle \;=\; -\frac{3}{4}L.
+\]
+(ii) For the \emph{cross} terms on the even cycle (neighbors lie on opposite sublattices),
+\[
+\langle M_A|\,\mathbf S_j\!\cdot\!\mathbf S_{j+1}\,|M_B\rangle \;=\; -\frac{3}{4}\,s
+\quad\text{for every }j,
+\qquad\Rightarrow\qquad
+\langle M_A|H_{\mathrm{Heis}}|M_B\rangle \;=\; -\frac{3}{4}(2L)\,s.
+\]
+(iii) Using $P_-^{(j,j+1)}=\tfrac14\mathbf 1-\mathbf S_j\!\cdot\!\mathbf S_{j+1}$,
+\[
+\langle M_A|H_{\mathrm{QMC}}|M_A\rangle
+= \sum_{j}\!\bigl\langle M_A|P_-^{(j,j+1)}|M_A\bigr\rangle
+= L\cdot 1 \;+\; L\cdot \frac14 \;=\; \frac{5}{4}L,
+\]
+and
+\[
+\langle M_A|H_{\mathrm{QMC}}|M_B\rangle
+= \sum_{j}\!\Bigl(\frac14 s - \langle M_A|\mathbf S_j\!\cdot\!\mathbf S_{j+1}|M_B\rangle\Bigr)
+= \sum_{j}\!\Bigl(\frac14 s + \frac{3}{4}s\Bigr)
+= (2L)\,s.
+\]
+(All these follow immediately from the Heisenberg expressions via the affine relation.)
+
+\paragraph{Variational energy at finite $L$.}
+For the symmetric state $|\psi_+\rangle$ one obtains
+\[
+E_{\mathrm{Heis}}^{(+)}(L)
+=\frac{\langle \psi_+|H_{\mathrm{Heis}}|\psi_+\rangle}{1}
+= \frac{-\tfrac{3}{4}L \;-\; \tfrac{3}{4}(2L)s}{1+s}
+= -\frac{3L}{4}\,\frac{1+2s}{1+s},
+\qquad s=2^{1-L}.
+\]
+Consequently, for the quantum Max-Cut Hamiltonian,
+\[
+E_{\mathrm{QMC}}^{(+)}(L)
+= \frac{L}{2} - E_{\mathrm{Heis}}^{(+)}(L)
+= \frac{L}{2} + \frac{3L}{4}\,\frac{1+2s}{1+s}
+= L\;\frac{5+2s}{4(1+s)}.
+\]
+The corresponding \emph{energy per edge} $e^{(+)}_{\mathrm{QMC}}(L):=E^{(+)}/(2L)$ and
+\emph{per site} $E^{(+)}/(2L)$ are
+\[
+e^{(+)}_{\mathrm{QMC}}(L)=\frac{1}{2}\,\frac{5+2s}{4(1+s)},
+\qquad
+\varepsilon^{(+)}_{\mathrm{QMC}}(L):=\frac{E^{(+)}_{\mathrm{QMC}}}{2L}
+= \frac{5+2s}{8(1+s)}.
+\]
+Exactly the same algebra gives the antisymmetric value with $s\mapsto -s$.
+
+\paragraph{Checks at small sizes.}
+For $L=2$ ($N=4$) one has $s=\tfrac12$ and
+\[
+E_{\mathrm{Heis}}^{(+)}(2)=-2,\qquad
+E_{\mathrm{QMC}}^{(+)}(2)= \frac{L}{2}-E_{\mathrm{Heis}}^{(+)}(2)=1+2=3,
+\]
+which matches the fact that $|M_A\rangle\pm|M_B\rangle$ span the exact ground-state
+doublet (Heisenberg) and, by the affine relation, the exact top/bottom of $H_{\mathrm{QMC}}$
+depending on convention.
+
+\paragraph{Finite-$L$ exactness via Bethe ansatz.}
+Because $H_{\mathrm{QMC}}$ differs from $H_{\mathrm{Heis}}$ by a multiple of the identity, the
+\emph{eigenstates coincide} at every finite $L$. Thus the Bethe ansatz furnishes an
+\emph{exact finite-$L$ solution} for $H_{\mathrm{QMC}}$:
+solve the XXX Bethe equations for $N=2L$ and $M=N/2$ down-spins,
+\[
+\left(\frac{\lambda_j+\tfrac{i}{2}}{\lambda_j-\tfrac{i}{2}}\right)^{\!N}
+= \prod_{k\ne j}^{M}\frac{\lambda_j-\lambda_k+i}{\lambda_j-\lambda_k-i},
+\qquad j=1,\dots,M,
+\]
+and obtain the Heisenberg energies
+\[
+E_{\mathrm{Heis}} = -\sum_{j=1}^{M}\frac{1}{\lambda_j^2+\tfrac14},
+\]
+in the above normalization. The corresponding quantum Max-Cut energies at finite $L$ are then
+\[
+E_{\mathrm{QMC}} \;=\; \frac{L}{2} - E_{\mathrm{Heis}}.
+\]
+No thermodynamic ($L\to\infty$) limit is required: all quantities are exact for any fixed $L$.
+
+\paragraph{Conclusion.}
+With the “two-dimer” variational state $|\psi_\pm\rangle$, the \emph{finite-$L$} expectation
+of $H_{\mathrm{QMC}}$ is
+\[
+E_{\mathrm{QMC}}^{(\pm)}(L)=L\,\frac{5\pm 2s}{4(1\pm s)},\qquad s=2^{1-L}.
+\]
+The \emph{exact} finite-$L$ ground-state energy (and gap, etc.) follow from the Bethe equations
+for the XXX chain and the affine shift $E_{\mathrm{QMC}}=L/2-E_{\mathrm{Heis}}$.
+
+
+
 
 \end{document}
