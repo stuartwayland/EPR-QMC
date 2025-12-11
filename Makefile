@@ -16,6 +16,8 @@ algorithms: $(BUILD_DIR)/algorithms/algorithms.pdf
 
 bethe: $(BUILD_DIR)/bethe/bethe.pdf
 
+bg: $(BUILD_DIR)/bg/bg.pdf
+
 # Explicit rules (more portable on older make versions)
 $(BUILD_DIR)/main/main.pdf: main.tex
 	@mkdir -p $(BUILD_DIR)/main
@@ -28,6 +30,11 @@ $(BUILD_DIR)/algorithms/algorithms.pdf: algorithms.tex
 $(BUILD_DIR)/bethe/bethe.pdf: bethe.tex
 	@mkdir -p $(BUILD_DIR)/bethe
 	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/bethe -auxdir=$(BUILD_DIR)/bethe $<
+
+$(BUILD_DIR)/bg/bg.pdf: bg.tex
+	@mkdir -p $(BUILD_DIR)/bg
+	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/bg -auxdir=$(BUILD_DIR)/bg $<
+
 
 # Convenience: open the main PDF
 view: main
