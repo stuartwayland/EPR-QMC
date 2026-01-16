@@ -18,6 +18,10 @@ bethe: $(BUILD_DIR)/bethe/bethe.pdf
 
 bg: $(BUILD_DIR)/bg/bg.pdf
 
+matchgates: $(BUILD_DIR)/matchgates/matchgates.pdf
+
+lit-vbt: $(BUILD_DIR)/lit-vbt/lit-vbt.pdf
+
 # Explicit rules (more portable on older make versions)
 $(BUILD_DIR)/main/main.pdf: main.tex
 	@mkdir -p $(BUILD_DIR)/main
@@ -34,6 +38,14 @@ $(BUILD_DIR)/bethe/bethe.pdf: bethe.tex
 $(BUILD_DIR)/bg/bg.pdf: bg.tex
 	@mkdir -p $(BUILD_DIR)/bg
 	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/bg -auxdir=$(BUILD_DIR)/bg $<
+
+$(BUILD_DIR)/matchgates/matchgates.pdf: matchgates.tex
+	@mkdir -p $(BUILD_DIR)/matchgates
+	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/matchgates -auxdir=$(BUILD_DIR)/matchgates $<
+
+$(BUILD_DIR)/lit-vbt/lit-vbt.pdf: lit-vbt.tex
+	@mkdir -p $(BUILD_DIR)/lit-vbt
+	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/lit-vbt -auxdir=$(BUILD_DIR)/lit-vbt $<
 
 
 # Convenience: open the main PDF
