@@ -22,6 +22,8 @@ matchgates: $(BUILD_DIR)/matchgates/matchgates.pdf
 
 lit-vbt: $(BUILD_DIR)/lit-vbt/lit-vbt.pdf
 
+lit-vbt2: $(BUILD_DIR)/lit-vbt2/lit-vbt2.pdf
+
 # Explicit rules (more portable on older make versions)
 $(BUILD_DIR)/main/main.pdf: main.tex
 	@mkdir -p $(BUILD_DIR)/main
@@ -46,6 +48,10 @@ $(BUILD_DIR)/matchgates/matchgates.pdf: matchgates.tex
 $(BUILD_DIR)/lit-vbt/lit-vbt.pdf: lit-vbt.tex
 	@mkdir -p $(BUILD_DIR)/lit-vbt
 	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/lit-vbt -auxdir=$(BUILD_DIR)/lit-vbt $<
+
+$(BUILD_DIR)/lit-vbt2/lit-vbt2.pdf: lit-vbt2.tex
+	@mkdir -p $(BUILD_DIR)/lit-vbt2
+	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/lit-vbt2 -auxdir=$(BUILD_DIR)/lit-vbt2 $<
 
 
 # Convenience: open the main PDF
