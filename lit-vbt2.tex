@@ -1,0 +1,321 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\title{Imaginary-Time Evolution with Generation Truncation: Runtime, Use of Spectral Gap, and an Expansion-Based Alternative}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Setup and Notation}
+
+Let $G=(V,E)$ be a finite graph with $|V|=n$. We consider a 2-local Hamiltonian
+\begin{equation}
+H \;=\; \sum_{e\in E} h_e,
+\qquad
+\|h_e\| \le h_{\max},
+\end{equation}
+acting on $(\mathbb{C}^2)^{\otimes V}$ (spin-$1/2$). For AFM Heisenberg/XXX one may take, for each edge $e=(i,j)$,
+\begin{equation}
+h_{ij} \;=\; J_{ij}\,(X_iX_j + Y_iY_j + Z_iZ_j),
+\qquad J_{ij}>0,
+\end{equation}
+so $\|h_{ij}\| = 3|J_{ij}|$ and $\|H\| \le 3\sum_{(i,j)\in E} |J_{ij}|$.
+
+We study imaginary-time evolution
+\begin{equation}
+\psi(\beta) \;\propto\; e^{-\beta H}\psi_0,
+\end{equation}
+and an algorithm that replaces $H$ by a \emph{truncated Hamiltonian} $H_r$ obtained by projecting to a subspace $\mathcal{H}_r$ defined by a ``generation depth'' parameter $r$.
+
+\begin{definition}[Truncation projector and truncated Hamiltonian]
+Fix a subspace $\mathcal{H}_r \subseteq (\mathbb{C}^2)^{\otimes V}$ and let $\Pi_r$ be the orthogonal projector onto $\mathcal{H}_r$.
+Define
+\begin{equation}
+H_r \;:=\; \Pi_r H \Pi_r,
+\qquad
+D_r \;:=\; \dim(\mathcal{H}_r).
+\end{equation}
+\end{definition}
+
+We will measure algorithmic cost in terms of:
+(i)~$D_r$ (dimension of the truncated space),
+(ii)~the number of applications of local terms $h_e$ (or equivalently the number of applications of $H_r$ implemented as a sum of $h_e$),
+and (iii)~the truncation order used to approximate $e^{-\beta H_r}$.
+
+\section{(1) Running Time of Imaginary-Time Evolution on the Truncated Space}
+
+\subsection{Implementing $e^{-\beta H_r}$ by truncated Taylor/Dyson series}
+
+A canonical approach is to approximate $e^{-\beta H_r}$ by the order-$q$ polynomial
+\begin{equation}
+p_q(H_r) \;:=\; \sum_{k=0}^{q} \frac{(-\beta)^k}{k!}\,H_r^k.
+\end{equation}
+One may evaluate $p_q(H_r)\psi_0$ iteratively by repeated application of $H_r$.
+
+\begin{lemma}[Operator-norm truncation error]
+For any self-adjoint $A$,
+\begin{equation}
+\left\|e^{-\beta A}-\sum_{k=0}^{q}\frac{(-\beta)^k}{k!}A^k\right\|
+\;\le\;
+e^{\beta\|A\|}\,\frac{(\beta\|A\|)^{q+1}}{(q+1)!}.
+\end{equation}
+In particular, to achieve error $\le \varepsilon_{\mathrm{poly}}$ it suffices to take
+\begin{equation}
+q \;=\; \Theta\!\big(\beta\|A\|+\log(1/\varepsilon_{\mathrm{poly}})\big).
+\end{equation}
+\end{lemma}
+
+We now count the cost of one $H_r$-application. Represent a state $\psi\in \mathcal{H}_r$ as a length-$D_r$ vector in a chosen basis for $\mathcal{H}_r$.
+Let $\mathrm{nnz}(H_r)$ denote the number of nonzeros of $H_r$ in this basis and let
+\begin{equation}
+s_r \;:=\; \max_{x}\#\{y: (H_r)_{xy}\neq 0\}
+\quad\text{(max row-sparsity)}.
+\end{equation}
+Then $\mathrm{nnz}(H_r)\le D_r s_r$ and a sparse matvec costs $\Theta(\mathrm{nnz}(H_r))$.
+
+\begin{equation}
+\textbf{Cost}(H_r\psi)\;=\;\Theta(D_r s_r).
+\end{equation}
+
+Alternatively, if $H_r$ is applied as $\Pi_r\big(\sum_{e}h_e\big)\Pi_r$ term-by-term, one may count local-term applications.
+Let $c_e(\psi)$ denote the cost to apply $h_e$ to $\psi$ and re-project to $\mathcal{H}_r$ (often $c_e(\psi)$ is $O(1)$ per affected amplitude in structured bases).
+A coarse but common accounting is:
+\begin{equation}
+\textbf{Cost}(H_r\psi)\;\approx\;\sum_{e\in E} \textbf{Cost}(\Pi_r h_e \Pi_r \psi)
+\;\sim\; |E|\cdot \textbf{Cost-per-term}.
+\end{equation}
+
+\paragraph{Total runtime (Taylor/Dyson).}
+Let $q$ be the polynomial degree achieving error $\varepsilon_{\mathrm{poly}}$.
+Then the runtime to compute $p_q(H_r)\psi_0$ is
+\begin{equation}
+T_{\mathrm{Taylor}}(r,\beta,\varepsilon_{\mathrm{poly}})
+\;=\;
+\Theta\!\big(q \cdot D_r s_r\big)
+\;=\;
+\Theta\!\Big((\beta\|H_r\|+\log(1/\varepsilon_{\mathrm{poly}}))\,D_r s_r\Big).
+\end{equation}
+Using $\|H_r\|\le \|H\|$ yields an explicit bound in terms of $\|H\|$.
+
+\subsection{Remark: Krylov/Lanczos implementation}
+One may instead approximate $e^{-\beta H_r}\psi_0$ via a Krylov method of dimension $m$ (Lanczos),
+with cost $\Theta(m)$ applications of $H_r$, i.e.\ $\Theta(m D_r s_r)$.
+In many regimes, $m$ scales like $\tilde{O}(\sqrt{\beta\|H_r\|\log(1/\varepsilon_{\mathrm{poly}})})$; the analysis is implementation-dependent and we focus on the Taylor/Dyson count above.
+
+\section{(2) Where the Spectral Gap of the Hamiltonian is Used (and Why It is Unavailable Here)}
+
+Let $E_0 \le E_1 \le \cdots$ be the eigenvalues of $H$ and let
+\begin{equation}
+\Delta_H \;:=\; E_1 - E_0
+\end{equation}
+denote the (global) spectral gap above the ground energy (or above the ground \emph{space} if $E_0$ is degenerate).
+
+\subsection{Gap used to choose $\beta$ for ground-state projection}
+Decompose the initial state $\psi_0 = \sum_k a_k \, \phi_k$ in the eigenbasis $(\phi_k)$ of $H$.
+Then
+\begin{equation}
+e^{-\beta H}\psi_0 \;=\; e^{-\beta E_0}\left(a_0\phi_0 + \sum_{k\ge 1} a_k e^{-\beta(E_k-E_0)}\phi_k\right).
+\end{equation}
+Hence suppression of excited components is governed by $\Delta_H$:
+\begin{equation}
+\left\|\sum_{k\ge 1} a_k e^{-\beta(E_k-E_0)}\phi_k\right\|
+\;\le\;
+e^{-\beta \Delta_H}\left(\sum_{k\ge 1}|a_k|^2\right)^{1/2}.
+\end{equation}
+A standard ``projection to the ground state'' guarantee takes
+\begin{equation}
+\beta \;\gtrsim\; \frac{1}{\Delta_H}\log\frac{1}{\varepsilon}
+\end{equation}
+(up to overlap factors). This step \emph{explicitly requires} a lower bound on $\Delta_H$.
+
+\subsection{Gap used in ``energy close $\Rightarrow$ state close''}
+The second place $\Delta_H$ enters is the variational implication that small energy error forces large ground-state overlap.
+
+\begin{lemma}[Energy error implies overlap, given a gap]
+Let $H$ have ground energy $E_0$ and gap $\Delta_H=E_1-E_0>0$.
+For any normalized $\psi$,
+\begin{equation}
+\langle \psi,H\psi\rangle - E_0
+\;\ge\;
+\Delta_H\,(1-\|\Pi_0\psi\|^2),
+\end{equation}
+where $\Pi_0$ projects onto the ground space of $H$.
+Equivalently,
+\begin{equation}
+\|\Pi_0\psi\|^2 \;\ge\; 1 - \frac{\langle \psi,H\psi\rangle - E_0}{\Delta_H}.
+\end{equation}
+\end{lemma}
+
+Thus the common inference
+\[
+\text{``we are close to the ground energy''} \;\Rightarrow\; \text{``we are close to the ground state''}
+\]
+is \emph{precisely} where the Hamiltonian gap is used.
+
+\paragraph{AFM/XXX issue.}
+For AFM Heisenberg/XXX on general bipartite graphs (including expanders), there is no general method to bound $\Delta_H$ from below by a graph Laplacian gap. Consequently, the above two uses of $\Delta_H$ are not available as black-box tools in the AFM setting.
+
+\section{(3) Expansion-Based Truncation: Formal Outline Toward the Bound $(\star)$}
+
+We outline a replacement for ``global gap'' arguments:
+prove that \emph{low-energy states cannot live mostly outside the truncated space}.
+This is expressed by a \emph{restricted (Dirichlet) lower bound} on the complement of $\mathcal{H}_r$.
+
+\subsection{Spectral projectors and the target implication}
+
+Let $P_{\le E_0+\varepsilon}$ be the spectral projector of $H$ onto energies in $[E_0,E_0+\varepsilon]$.
+The desired truncation property is
+\begin{equation}
+\|(I-\Pi_r)\,P_{\le E_0+\varepsilon}\| \;\le\; \delta,
+\end{equation}
+meaning that every eigenvector with energy $\le E_0+\varepsilon$ has almost all its mass in $\mathcal{H}_r$.
+
+A sufficient condition is the following operator inequality on the complement:
+
+\begin{equation}\label{eq:star}
+(\star)\qquad
+(I-\Pi_r)\,(H-E_0)\,(I-\Pi_r)
+\;\succeq\;
+\varepsilon_r\,(I-\Pi_r),
+\end{equation}
+for some $\varepsilon_r>0$ (ideally not too small).
+
+\begin{lemma}[Consequence of $(\star)$: no low-energy leakage]
+If \eqref{eq:star} holds, then $P_{\le E_0+\varepsilon_r} \preceq \Pi_r$ (as projectors), i.e.
+\begin{equation}
+(I-\Pi_r)\,P_{\le E_0+\varepsilon_r} \;=\; 0.
+\end{equation}
+More generally, approximate versions of \eqref{eq:star} imply quantitative bounds $\|(I-\Pi_r)P_{\le E_0+\varepsilon}\|\le \delta$ for $\varepsilon<\varepsilon_r$.
+\end{lemma}
+
+\paragraph{Interpretation.}
+The quantity $\varepsilon_r$ is a \emph{truncation-local spectral separation scale}:
+it is \emph{not} the global gap $\Delta_H$, but it plays an analogous role for certifying that the truncated space captures the entire low-energy band up to energy $E_0+\varepsilon_r$.
+
+\subsection{How expansion is intended to prove $(\star)$}
+
+To connect to expansion, one works in a basis where the AFM bipartite model is amenable to a quadratic-form (Dirichlet form) interpretation.
+
+\begin{assumption}[Stoquastic form after Marshall sign transform]\label{ass:stoquastic}
+After a bipartite Marshall sign transform (rotation by $\pi$ about $Z$ on one sublattice),
+$H$ can be written in a basis $\{|x\rangle\}_{x\in\Omega}$ as
+\begin{equation}
+H \;=\; V + K,
+\end{equation}
+where $V$ is diagonal and $K$ has non-positive off-diagonal entries:
+\begin{equation}
+\langle x|K|y\rangle \le 0 \quad (x\neq y).
+\end{equation}
+\end{assumption}
+
+\begin{definition}[Configuration graph induced by off-diagonal moves]
+Define a weighted graph $\mathcal{G}=(\Omega,\mathcal{E},w)$ on basis labels $\Omega$ by placing an edge $(x,y)\in\mathcal{E}$ whenever $\langle x|K|y\rangle\neq 0$ and setting weight
+\begin{equation}
+w_{xy} \;:=\; -\langle x|K|y\rangle \;\ge\; 0.
+\end{equation}
+Define the (weighted) degree $d_x := \sum_{y} w_{xy}$.
+\end{definition}
+
+For a real vector $f:\Omega\to\mathbb{R}$, define the Dirichlet form on $\mathcal{G}$:
+\begin{equation}
+\mathcal{E}_{\mathcal{G}}(f)
+\;:=\;
+\frac{1}{2}\sum_{x,y\in\Omega} w_{xy}\,(f(x)-f(y))^2.
+\end{equation}
+If $\psi=\sum_x f(x)|x\rangle$ is supported on $\Omega$, then $\langle \psi,(-K)\psi\rangle = \mathcal{E}_{\mathcal{G}}(f)$ (up to the diagonal correction by degrees; details depend on normalization).
+
+\paragraph{Truncation as a subset of configurations.}
+In many ``generation'' truncations, $\mathcal{H}_r$ is spanned by a subset $S_r\subseteq \Omega$ of basis states, so $\Pi_r$ is the projector onto $\mathrm{span}\{|x\rangle: x\in S_r\}$.
+Then $(I-\Pi_r)$ corresponds to functions supported on $S_r^c := \Omega\setminus S_r$.
+
+\begin{assumption}[Isoperimetry/expansion for the configuration graph on the complement]\label{ass:cheeger}
+There exists $\Phi_r>0$ such that every subset $A\subseteq S_r^c$ with $\pi(A)\le 1/2$ satisfies a conductance/isoperimetric lower bound
+\begin{equation}
+\frac{w(A,A^c)}{\mathrm{vol}(A)} \;\ge\; \Phi_r,
+\end{equation}
+where $\mathrm{vol}(A)=\sum_{x\in A} d_x$ and $w(A,A^c)=\sum_{x\in A,y\in A^c} w_{xy}$.
+\end{assumption}
+
+Under Assumption~\ref{ass:cheeger}, standard Cheeger-type inequalities imply a \emph{Dirichlet spectral gap} on $S_r^c$ for the Laplacian of $\mathcal{G}$, i.e.\ for functions $f$ supported on $S_r^c$,
+\begin{equation}
+\mathcal{E}_{\mathcal{G}}(f)
+\;\ge\;
+\lambda^{\mathrm{Dir}}_r \sum_{x\in S_r^c} d_x\, f(x)^2,
+\qquad
+\lambda^{\mathrm{Dir}}_r \;\gtrsim\; \Phi_r^2.
+\end{equation}
+
+\paragraph{Incorporating the diagonal term.}
+The diagonal term $V$ adds $\sum_x V(x) f(x)^2$ to the energy.
+Thus, for $\psi$ supported on $S_r^c$,
+\begin{equation}
+\langle \psi, (H-E_0)\psi\rangle
+=
+\langle \psi,(V-E_0)\psi\rangle + \langle \psi,K\psi\rangle.
+\end{equation}
+Using $K$ via the Dirichlet form and lower bounding $V-E_0$ on $S_r^c$ (or controlling it in aggregate), one aims to show
+\begin{equation}
+\langle \psi, (H-E_0)\psi\rangle
+\;\ge\;
+\varepsilon_r \|\psi\|^2
+\quad \text{for all }\psi\in \mathrm{im}(I-\Pi_r),
+\end{equation}
+which is exactly \eqref{eq:star}.
+
+\subsection{How $(\star)$ replaces the Hamiltonian gap in choosing $\beta$}
+
+Assume \eqref{eq:star} holds with parameter $\varepsilon_r$.
+Then \emph{all} eigenstates below $E_0+\varepsilon_r$ are contained in $\mathcal{H}_r$.
+Consequently, imaginary time on $H_r$ can be parameterized by $\varepsilon_r$ rather than $\Delta_H$:
+
+\begin{lemma}[Energy-window filtering without global gap]
+Let $\varepsilon\le \varepsilon_r$ and let $\psi_0\in \mathcal{H}_r$.
+Then for any component of $\psi_0$ in energies $\ge E_0+\varepsilon$,
+$e^{-\beta H_r}$ suppresses it by at least $e^{-\beta\varepsilon}$ relative to the ground band.
+Thus choosing
+\begin{equation}
+\beta \;\ge\; \frac{1}{\varepsilon}\log\frac{1}{\delta}
+\end{equation}
+yields suppression $\le \delta$ of energies above $E_0+\varepsilon$ \emph{without invoking the global many-body gap}.
+\end{lemma}
+
+\paragraph{Algorithmic message.}
+The runtime of the truncated imaginary-time algorithm is governed by:
+\begin{itemize}
+\item polynomial approximation degree $q \sim \beta\|H_r\|+\log(1/\varepsilon_{\mathrm{poly}})$,
+\item sparse matvec cost $\Theta(D_r s_r)$ per $H_r$-application,
+\item and the choice of $\beta$ governed by an \emph{energy window} parameter $\varepsilon$ (coming from \eqref{eq:star}), not by the unknown global gap $\Delta_H$.
+\end{itemize}
+
+\section{Summary}
+
+\begin{itemize}
+\item \textbf{Runtime (truncated space).}
+Using a Taylor/Dyson approximation, the number of applications of $H_r$ is
+$q=\Theta(\beta\|H_r\|+\log(1/\varepsilon_{\mathrm{poly}}))$, and total runtime is
+$T=\Theta(q\,D_r s_r)$ (or term-by-term, $q$ passes over the edge terms $h_e$).
+\item \textbf{Where the Hamiltonian gap is used.}
+The global gap $\Delta_H$ is used (i) to set $\beta$ for ground-state projection and
+(ii) in the implication ``energy close $\Rightarrow$ state close'' via
+$\|\Pi_0\psi\|^2 \ge 1-(\langle H\rangle - E_0)/\Delta_H$.
+For AFM/XXX on general bipartite graphs, $\Delta_H$ is not available from graph expansion.
+\item \textbf{Expansion-based truncation alternative.}
+Prove the truncation-local inequality $(\star)$:
+$(I-\Pi_r)(H-E_0)(I-\Pi_r)\succeq \varepsilon_r(I-\Pi_r)$.
+This can be pursued by representing the off-diagonal part as a weighted move graph
+(configuration graph) and using isoperimetry/expansion (Cheeger/Dirichlet bounds)
+to show states supported outside the truncation pay energy $\ge \varepsilon_r$.
+Then choose $\beta$ from $\varepsilon_r$ (energy-window filtering), not from $\Delta_H$.
+\end{itemize}
+
+\end{document}
