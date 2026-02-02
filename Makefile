@@ -24,6 +24,8 @@ lit-vbt: $(BUILD_DIR)/lit-vbt/lit-vbt.pdf
 
 lit-vbt2: $(BUILD_DIR)/lit-vbt2/lit-vbt2.pdf
 
+clr: $(BUILD_DIR)/clr/clr.pdf
+
 # Explicit rules (more portable on older make versions)
 $(BUILD_DIR)/main/main.pdf: main.tex
 	@mkdir -p $(BUILD_DIR)/main
@@ -52,6 +54,10 @@ $(BUILD_DIR)/lit-vbt/lit-vbt.pdf: lit-vbt.tex
 $(BUILD_DIR)/lit-vbt2/lit-vbt2.pdf: lit-vbt2.tex
 	@mkdir -p $(BUILD_DIR)/lit-vbt2
 	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/lit-vbt2 -auxdir=$(BUILD_DIR)/lit-vbt2 $<
+
+$(BUILD_DIR)/clr/clr.pdf: clr.tex
+	@mkdir -p $(BUILD_DIR)/clr
+	$(LATEXMK) $(LATEXMKFLAGS) -outdir=$(BUILD_DIR)/clr -auxdir=$(BUILD_DIR)/clr $<
 
 
 # Convenience: open the main PDF

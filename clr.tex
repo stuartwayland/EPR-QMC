@@ -1,0 +1,542 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\Sg}{\mathfrak{S}}
+\newcommand{\rw}{\mathrm{RW}}
+\newcommand{\ip}{\mathrm{IP}}
+\newcommand{\ex}{\mathrm{EX}}
+\newcommand{\gap}{\lambda_1}
+
+\title{Aldous' Spectral Gap Conjecture (CLR): Core Ideas With and Without Holes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.0em}
+
+\paragraph{Goal.}
+Give a self-contained ``dictionary'' for the statement and proof spine of Aldous' spectral gap conjecture and its extension to exclusion (``holes'').
+
+\section*{1.\ Reversible generators, Dirichlet forms, and barriers}
+
+Let $(\Omega,\pi)$ be a finite probability space. A continuous-time reversible Markov chain has generator
+\[
+(L f)(\omega)=\sum_{\omega'\neq \omega} q(\omega,\omega')\bigl(f(\omega')-f(\omega)\bigr),
+\qquad
+\pi(\omega)q(\omega,\omega')=\pi(\omega')q(\omega',\omega).
+\]
+The Dirichlet form and gap (Poincar\'e constant) are
+\[
+\E_L(f)=\frac12\sum_{\omega,\omega'}\pi(\omega)q(\omega,\omega')\bigl(f(\omega')-f(\omega)\bigr)^2,
+\qquad
+\gap(L)=\inf_{f:\Var_\pi(f)\neq 0}\frac{\E_L(f)}{\Var_\pi(f)}.
+\]
+\paragraph{Barrier upper bound.}
+For any $A\subseteq \Omega$, taking $f=\1_A$ gives
+\[
+\gap(L)\le \frac{\sum_{\omega\in A,\ \omega'\notin A}\pi(\omega)q(\omega,\omega')}
+{\pi(A)\bigl(1-\pi(A)\bigr)}.
+\]
+Thus a set $A$ with moderate mass but tiny boundary flow produces a small gap (a \emph{Dirichlet barrier}).
+
+\paragraph{Quadratic-form comparison.}
+If two reversible generators $L_1,L_2$ share the same stationary $\pi$ and satisfy
+$\E_{L_1}(f)\ge \E_{L_2}(f)$ for all $f$, then $\gap(L_1)\ge \gap(L_2)$.
+
+\section*{2.\ Three chains on a weighted graph}
+
+Fix a finite vertex set $V$, $|V|=n$, and symmetric edge rates $c_{xy}=c_{yx}\ge 0$ (with $c_{xy}=0$ allowed).
+
+\subsection*{2.1.\ Random walk (RW)}
+State space $\Omega_{\rw}=V$ with generator
+\[
+(L_{\rw} f)(x)=\sum_{y\neq x} c_{xy}\,(f(y)-f(x)).
+\]
+Write $\gap^{\rw}(G):=\gap(L_{\rw})$.
+
+\subsection*{2.2.\ Interchange process (IP) (no holes)}
+State space $\Omega_{\ip}=\Sg_n$ (permutations / bijective labelings of $V$). Let $\tau_{xy}$ swap labels at $x,y$. Then
+\[
+(L_{\ip} F)(\eta)=\sum_{x<y} c_{xy}\bigl(F(\eta\tau_{xy})-F(\eta)\bigr),
+\]
+reversible w.r.t.\ the uniform measure $\nu$ on $\Sg_n$. Write $\gap^{\ip}(G):=\gap(L_{\ip})$.
+
+\paragraph{Easy inequality (factor to RW).}
+Track one distinguished label under IP; it performs RW with rates $c_{xy}$. Hence
+\[
+\gap^{\ip}(G)\le \gap^{\rw}(G).
+\]
+
+\subsection*{2.3.\ Symmetric exclusion $\ex_k$ (with holes)}
+Fix $k\in\{1,\dots,n-1\}$. State space
+\[
+\Omega_{\ex,k}=\{\zeta\subseteq V:\ |\zeta|=k\},
+\]
+interpreting $\zeta$ as the occupied sites (particles) and $V\setminus \zeta$ as holes. Generator:
+\[
+(L_{\ex,k} f)(\zeta)=\sum_{x\in \zeta}\sum_{y\notin \zeta} c_{xy}\Bigl(f(\zeta\cup\{y\}\setminus\{x\})-f(\zeta)\Bigr),
+\]
+reversible w.r.t.\ uniform on $\Omega_{\ex,k}$. For $k=1$, this is exactly RW. Exclusion is a factor of IP:
+select $k$ labels as ``particles'' and forget their identities, keeping only the occupied set.
+
+\section*{3.\ Aldous' conjecture and what it means}
+
+\paragraph{Aldous' spectral gap conjecture (proved by CLR).}
+For every finite weighted graph $G$,
+\[
+\boxed{\ \gap^{\ip}(G)=\gap^{\rw}(G)\ }.
+\]
+Equivalently: the slowest nontrivial mode of interchange is already visible in the one-particle projection.
+
+\paragraph{With holes.}
+A parallel conclusion holds for symmetric exclusion: the gap of $\ex_k$ equals the RW gap (for each $k$), so adding many particles subject to exclusion introduces no slower relaxation mode than the one-particle mode.
+(Precise statements and proofs are treated alongside interchange in \cite{CLR}.)
+
+\section*{4.\ Proof spine (CLR): elimination + octopus + induction}
+
+The heart of CLR is a Dirichlet-form domination that simulates electrical reduction.
+
+\subsection*{4.1.\ Vertex elimination (star--mesh / Kron reduction) for RW}
+Fix $x\in V$ and write $V_x=V\setminus\{x\}$. Define a reduced weighted graph $G_x$ on $V_x$ with
+\[
+\tilde c_{yz}=c_{yz}+c^{*,x}_{yz},
+\qquad
+c^{*,x}_{yz}=\frac{c_{xy}c_{xz}}{\sum_{w\in V_x}c_{xw}},
+\qquad y\neq z\in V_x.
+\]
+A key monotonicity for RW is
+\[
+\gap^{\rw}(G_x)\ \ge\ \gap^{\rw}(G),
+\]
+i.e.\ eliminating a vertex and replacing its star by a clique can only increase the RW gap.
+
+\subsection*{4.2.\ The octopus inequality (Dirichlet comparison for IP)}
+For any $F:\Sg_n\to \mathbb{R}$ and any fixed $x\in V$,
+\[
+\boxed{\ \sum_{y\in V_x} c_{xy}\,\nu\!\left[\bigl(F(\eta\tau_{xy})-F(\eta)\bigr)^2\right]
+\ \ge\
+\sum_{\substack{y<z\\ y,z\in V_x}} c^{*,x}_{yz}\,\nu\!\left[\bigl(F(\eta\tau_{yz})-F(\eta)\bigr)^2\right]\ }.
+\]
+Interpretation: the collection of star transpositions touching $x$ already contains (in quadratic-form strength)
+the induced clique transpositions on $V_x$, with \emph{exactly} the Kron reduction coefficients.
+
+\subsection*{4.3.\ Induction closes the theorem}
+Sketch the logic (details in \cite{CLR}):
+\begin{enumerate}[leftmargin=1.4em,itemsep=0.2em]
+\item Apply the octopus inequality to compare the IP Dirichlet form on $G$ to the IP Dirichlet form on the reduced graph $G_x$.
+\item By induction on $n$, assume $\gap^{\ip}(G_x)=\gap^{\rw}(G_x)$.
+\item Use RW elimination monotonicity $\gap^{\rw}(G_x)\ge \gap^{\rw}(G)$.
+\item Conclude $\gap^{\ip}(G)\ge \gap^{\rw}(G)$; combined with the easy inequality yields equality.
+\end{enumerate}
+
+\paragraph{Takeaway.}
+RW has a literal star--mesh reduction. CLR proves the octopus inequality to make an \emph{analogous reduction true at the level of IP Dirichlet forms}, enabling an induction on the vertex count.
+
+\section*{5.\ Minimal mental model: ``without holes'' vs.\ ``with holes''}
+
+\begin{itemize}[leftmargin=1.3em,itemsep=0.2em]
+\item \textbf{No holes (IP):} state space is huge ($n!$), stationary measure is uniform, updates are edge transpositions.
+Aldous says the first nonzero eigenvalue matches RW.
+\item \textbf{With holes (exclusion):} state space is $\binom{n}{k}$, uniform stationary measure, updates move particles across edges.
+The gap still matches RW: exclusion introduces constraints but not a smaller spectral gap than the one-particle mode.
+\item \textbf{Why this is nontrivial:} a priori, multi-label / multi-particle systems could have new bottlenecks invisible to a single particle. CLR shows they do not: the one-particle sector already controls the gap.
+\end{itemize}
+
+
+\pagebreak 
+
+
+% =========================
+% Part I (Aldous / CLR): What to present + how the crucial inequality is proved
+% Drop-in raw LaTeX sections for meeting plan
+% =========================
+
+\section{Part I: Aldous/CLR as the Spectral-Geometry Foundation}
+
+\subsection{Objects: Two Markov chains on a weighted graph}
+
+Fix a finite vertex set $V$ with $|V|=n$ and symmetric edge rates $c_{xy}=c_{yx}\ge 0$ (allow $c_{xy}=0$).
+We will compare the spectral gaps of two reversible continuous-time chains built from the same edge rates.
+
+\paragraph{Random walk (RW).}
+State space $\Omega_{\rw}=V$ with generator
+\[
+(L_{\rw} f)(x)=\sum_{y\neq x} c_{xy}\,\bigl(f(y)-f(x)\bigr).
+\]
+Write $\lambda^{\rw}(G):=\lambda_1(L_{\rw})$.
+
+\paragraph{Interchange process (IP).}
+State space $\Omega_{\ip}=\mathfrak{S}_n$ (permutations/labelings of the vertices).
+Let $\tau_{xy}$ denote the transposition swapping the labels at vertices $x,y$.
+Then
+\[
+(L_{\ip} F)(\eta)=\sum_{x<y} c_{xy}\,\bigl(F(\eta\tau_{xy})-F(\eta)\bigr),
+\]
+reversible with respect to the uniform measure $\nu$ on $\mathfrak{S}_n$.
+Write $\lambda^{\ip}(G):=\lambda_1(L_{\ip})$.
+
+\subsection{The proof interface: Dirichlet forms and spectral gaps}
+
+For a finite reversible chain $(\Omega,\pi,L)$, the Dirichlet form and gap are
+\[
+\mathcal{E}_L(f)=\frac12\sum_{\omega,\omega'}\pi(\omega)q(\omega,\omega')\bigl(f(\omega')-f(\omega)\bigr)^2,
+\qquad
+\lambda_1(L)=\inf_{f:\ \mathrm{Var}_\pi(f)\neq 0}\frac{\mathcal{E}_L(f)}{\mathrm{Var}_\pi(f)}.
+\]
+For IP we can write
+\[
+\mathcal{E}_{\ip}(F)=\frac12\sum_{a<b} c_{ab}\,\nu\!\left[\bigl(\nabla_{ab}F\bigr)^2\right],
+\qquad
+\nabla_{ab}F(\eta):=F(\eta\tau_{ab})-F(\eta).
+\]
+
+\paragraph{Easy direction (factor map).}
+Tracking a single label under IP yields RW as a factor. Consequently,
+\[
+\lambda^{\ip}(G)\le \lambda^{\rw}(G).
+\]
+Thus the substantive task is the reverse inequality $\lambda^{\ip}(G)\ge \lambda^{\rw}(G)$.
+
+\subsection{Aldous' conjecture (CLR theorem): statement and takeaway}
+
+\paragraph{Theorem (Caputo--Liggett--Richthammer; Aldous' conjecture).}
+For every finite weighted graph $G$,
+\[
+\boxed{\ \lambda^{\ip}(G)=\lambda^{\rw}(G)\ }.
+\]
+\emph{Takeaway for expanders:} if $G$ has a constant RW gap (e.g.\ a bounded-degree Ramanujan expander), then the many-body IP also has constant gap. In particular, the interchange ``move graph'' does not introduce new bottlenecks beyond those already visible to a single particle.
+
+\subsection{The induction template: vertex elimination and the need for an IP analogue}
+
+Fix a vertex $x\in V$, and set $V_x:=V\setminus\{x\}$ and
+\[
+c_x:=\sum_{w\in V_x} c_{xw}.
+\]
+Define the Kron-reduction (star--mesh) weights on $V_x$ by
+\[
+c^{*,x}_{yz}:=\frac{c_{xy}c_{xz}}{c_x},
+\qquad y,z\in V_x,\ y\neq z,
+\]
+and the reduced graph $G_x$ on $V_x$ with edge weights
+\[
+\tilde c_{yz}:=c_{yz}+c^{*,x}_{yz}.
+\]
+
+\paragraph{RW elimination monotonicity.}
+A classical fact from electrical network theory is:
+\[
+\lambda^{\rw}(G_x)\ \ge\ \lambda^{\rw}(G).
+\]
+Thus, if we can compare the \emph{IP} Dirichlet form on $G$ to the \emph{IP} Dirichlet form on $G_x$ with the \emph{same coefficients} $c^{*,x}_{yz}$, then an induction on $n$ becomes possible.
+
+\subsection{The crucial inequality: the octopus inequality}
+
+\paragraph{Octopus inequality (Dirichlet-form domination).}
+For every function $F:\mathfrak{S}_n\to\mathbb{R}$ and every vertex $x\in V$,
+\[
+\boxed{\ \sum_{y\in V_x} c_{xy}\,\nu\!\left[\bigl(\nabla_{xy}F\bigr)^2\right]
+\ \ge\
+\sum_{\substack{y<z\\ y,z\in V_x}} c^{*,x}_{yz}\,\nu\!\left[\bigl(\nabla_{yz}F\bigr)^2\right]\ }.
+\]
+\emph{Interpretation:} the collection of ``tentacle'' swaps touching $x$ controls the effective clique swaps among $V_x$ with exactly the Kron-reduction weights. This is the IP analogue of star--mesh reduction.
+
+\paragraph{3-vertex sanity check.}
+If $V=\{x,y,z\}$, then $c^{*,x}_{yz}=\frac{c_{xy}c_{xz}}{c_{xy}+c_{xz}}$ and octopus becomes
+\[
+c_{xy}\,\nu[(\nabla_{xy}F)^2] + c_{xz}\,\nu[(\nabla_{xz}F)^2]
+\ \ge\
+\frac{c_{xy}c_{xz}}{c_{xy}+c_{xz}}\ \nu[(\nabla_{yz}F)^2],
+\]
+matching the effective-conductance intuition.
+
+\subsection{How octopus is proved (what to say on the board)}
+
+The proof is not a ``canonical paths'' argument; it is an \emph{operator positivity} statement.
+Define the difference operator
+\[
+\mathcal{O}_x
+\ :=\
+\sum_{y\in V_x} c_{xy}\,(I-\tau_{xy})
+\ -\
+\sum_{\substack{y<z\\ y,z\in V_x}} c^{*,x}_{yz}\,(I-\tau_{yz}).
+\]
+Then octopus is equivalent to
+\[
+\langle F,\mathcal{O}_x F\rangle_{L^2(\nu)}\ \ge\ 0\qquad \forall F,
+\]
+i.e.\ $\mathcal{O}_x\succeq 0$ in the $L^2(\nu)$ quadratic-form sense.
+CLR (and later expositions) establish this by rewriting $\mathcal{O}_x$ as a sum of positive semidefinite pieces (a Gram/sum-of-squares decomposition), which makes the inequality uniform in $F$.
+
+\subsection{Closing Aldous via induction (the 4-line proof spine)}
+
+\begin{enumerate}[leftmargin=1.6em,itemsep=0.25em]
+\item Use octopus to compare IP Dirichlet contributions supported on the star at $x$ to the induced clique on $V_x$ with weights $c^{*,x}_{yz}$.
+\item Apply the induction hypothesis on the reduced graph $G_x$:
+$\lambda^{\ip}(G_x)=\lambda^{\rw}(G_x)$.
+\item Use RW elimination monotonicity:
+$\lambda^{\rw}(G_x)\ge \lambda^{\rw}(G)$.
+\item Deduce $\lambda^{\ip}(G)\ge \lambda^{\rw}(G)$; combine with the easy inequality to conclude equality.
+\end{enumerate}
+
+\subsection{``With holes'': exclusion as a factor (optional 1-slide interlude)}
+
+Fix $k\in\{1,\dots,n-1\}$. The symmetric exclusion process (holes model) has state space
+\[
+\Omega_{\ex,k}=\{\zeta\subseteq V:\ |\zeta|=k\},
+\]
+and generator
+\[
+(L_{\ex,k} f)(\zeta)=\sum_{x\in \zeta}\sum_{y\notin \zeta} c_{xy}\Bigl(f(\zeta\cup\{y\}\setminus\{x\})-f(\zeta)\Bigr),
+\]
+reversible with respect to the uniform measure on $\Omega_{\ex,k}$.
+It is a factor of IP: select $k$ distinguished labels as particles and forget their identities, retaining only the occupied set.
+The philosophical consequence consistent with Aldous is that the slowest mode is already present in the one-particle sector (RW), i.e.\ multi-particle constraints do not introduce a smaller spectral gap than RW.
+
+% =========================
+% Segue section: explicitly hand off from Aldous/CLR to your new ideas (move graph + potential well)
+% =========================
+
+\section{Segue: What Aldous Gives Us, and What Must Be New in the QMC Move-Graph Setting}
+
+\subsection{What Aldous/CLR gives (template)}
+
+The CLR theorem gives a \emph{sharp} mechanism for certifying that a huge configuration-space dynamics has the same spectral gap as the underlying physical graph:
+\begin{itemize}[leftmargin=1.6em,itemsep=0.25em]
+\item Identify a large state space with \emph{local} generators built from edge swaps (IP / exclusion).
+\item Prove an \emph{elimination-style Dirichlet domination} (octopus) mirroring Kron reduction for RW.
+\item Induct on the number of vertices to show the first nonzero eigenvalue is inherited from the 1-particle sector.
+\end{itemize}
+On an expander, this yields a constant spectral gap in the corresponding ``move graph'' dynamics.
+
+\subsection{Why our problem is different (where octopus does \emph{not} directly apply)}
+
+In the QMC / VB / perfect-matching move graph:
+\begin{itemize}[leftmargin=1.6em,itemsep=0.25em]
+\item The state space is not $\mathfrak{S}_n$ but a constrained combinatorial manifold (e.g.\ perfect matchings / VB coverings).
+\item Allowed moves are not arbitrary transpositions but local $4$-cycle flips (``dimer swaps'').
+\item Most critically, the effective weight is typically \emph{not uniform}: diagonal energies create a potential well and (in loop/SSE formulations) nonlocal topology can introduce global factors.
+\end{itemize}
+Therefore, the correct object becomes a \emph{Dirichlet eigenvalue / barrier} statement for a \emph{weighted} chain on the move graph: we must control how the potential (diagonal term) interacts with kinetic expansion (off-diagonal connectivity).
+
+\subsection{The handoff (one sentence)}
+
+\emph{Aldous/CLR provides the spectral-geometry template: local-to-global control via Dirichlet-form inequalities.
+Our new contribution is to build the analogue for the matching move graph in the presence of a potential well, yielding a Dirichlet barrier that localizes the ground state and justifies truncation/imaginary-time evolution in polynomial time.}
+
+% =========================
+% Optional: add bib entries (if you have a bibliography section elsewhere, omit these)
+% =========================
+% \begin{thebibliography}{9}
+% \bibitem{CLR}
+% P.~Caputo, T.~Liggett, and T.~Richthammer.
+% \newblock Proof of Aldous' spectral gap conjecture.
+% \newblock \emph{J. Amer. Math. Soc.} 23 (2010), 831--851. arXiv:0906.1238.
+%
+% \bibitem{CesiOctopus}
+% F.~Cesi.
+% \newblock On the octopus inequality.
+% \newblock arXiv:1310.6156.
+% \end{thebibliography}
+
+
+\pagebreak 
+
+% ============================================================
+% Drop-in Roadmap (Aldous/CLR -> Octopus Proof Ideas -> Transition)
+% Clear, concise, presentation-ready narrative + pointers.
+% ============================================================
+
+\section{Roadmap: From Aldous/CLR to Our New Localization Ideas}
+
+\subsection{Situation setup: why Aldous matters for our move graph}
+
+\paragraph{Base object: a weighted graph.}
+Fix a finite vertex set $V$ with $|V|=n$ and symmetric edge rates $c_{xy}=c_{yx}\ge 0$.
+
+\paragraph{Two Markov chains built from the same edge rates.}
+\begin{itemize}[leftmargin=1.6em,itemsep=0.25em]
+\item \textbf{Random walk (RW)} on $V$:
+\[
+(L_{\rw} f)(x)=\sum_{y\neq x} c_{xy}\,\bigl(f(y)-f(x)\bigr).
+\qquad
+\lambda^{\rw}(G):=\lambda_1(L_{\rw}).
+\]
+\item \textbf{Interchange process (IP)} on permutations $\mathfrak{S}_n$:
+\[
+(L_{\ip}F)(\eta)=\sum_{x<y} c_{xy}\,\bigl(F(\eta\tau_{xy})-F(\eta)\bigr),
+\qquad
+\lambda^{\ip}(G):=\lambda_1(L_{\ip}),
+\]
+where $\tau_{xy}$ swaps the labels at $x,y$ and $\nu$ is uniform on $\mathfrak{S}_n$.
+\end{itemize}
+
+\paragraph{Proof interface: Dirichlet forms.}
+For a reversible chain $(\Omega,\pi,L)$,
+\[
+\mathcal{E}_L(f)=\frac12\sum_{\omega,\omega'}\pi(\omega)q(\omega,\omega')\bigl(f(\omega')-f(\omega)\bigr)^2,
+\qquad
+\lambda_1(L)=\inf_{f:\Var_\pi(f)\neq 0}\frac{\mathcal{E}_L(f)}{\Var_\pi(f)}.
+\]
+For IP:
+\[
+\mathcal{E}_{\ip}(F)=\frac12\sum_{a<b} c_{ab}\,\nu\!\left[\bigl(\nabla_{ab}F\bigr)^2\right],
+\qquad
+\nabla_{ab}F(\eta)=F(\eta\tau_{ab})-F(\eta).
+\]
+
+\paragraph{Easy direction (factor map).}
+Tracking one label under IP yields RW as a factor, hence
+\[
+\lambda^{\ip}(G)\le \lambda^{\rw}(G).
+\]
+Thus the substantive task is $\lambda^{\ip}(G)\ge \lambda^{\rw}(G)$.
+
+\paragraph{CLR theorem (Aldous' conjecture).}
+\[
+\boxed{\ \lambda^{\ip}(G)=\lambda^{\rw}(G)\ \ \text{for all weighted graphs }G.\ }
+\]
+\emph{Takeaway for expanders:} if $G$ is a bounded-degree expander with constant RW gap, then the many-body interchange move graph inherits a constant gap, i.e.\ it introduces no additional bottleneck beyond the base graph.
+
+\medskip
+\noindent\textbf{Where in CLR:} Theorem~2.3 is the octopus inequality; its proof is Section~3. The main theorem is proved by elimination + induction using octopus.
+
+\subsection{Key idea enabling induction: elimination and the octopus inequality}
+
+\paragraph{Vertex elimination (RW).}
+Fix $x\in V$, let $V_x:=V\setminus\{x\}$ and $c_x:=\sum_{w\in V_x}c_{xw}$.
+Define Kron weights on $V_x$:
+\[
+c^{*,x}_{yz}:=\frac{c_{xy}c_{xz}}{c_x}\qquad (y\neq z\in V_x),
+\]
+and reduced graph $G_x$ with $\tilde c_{yz}:=c_{yz}+c^{*,x}_{yz}$.
+A classical monotonicity is
+\[
+\lambda^{\rw}(G_x)\ge \lambda^{\rw}(G).
+\]
+\emph{Moral:} RW has literal star--mesh reduction.
+
+\paragraph{What we need for IP.}
+To induct on $n$ for IP, we need an \emph{IP analogue} of star--mesh:
+a Dirichlet-form domination that replaces the star at $x$ by the reduced clique on $V_x$ with the \emph{same} Kron coefficients.
+
+\paragraph{Octopus inequality (IP Dirichlet domination).}
+For every $F:\mathfrak{S}_n\to\mathbb{R}$ and every $x\in V$,
+\[
+\boxed{\ \sum_{y\in V_x} c_{xy}\,\nu\!\left[\bigl(\nabla_{xy}F\bigr)^2\right]
+\ \ge\
+\sum_{\substack{y<z\\ y,z\in V_x}} c^{*,x}_{yz}\,\nu\!\left[\bigl(\nabla_{yz}F\bigr)^2\right]\ }.
+\]
+\emph{Interpretation:} ``tentacles'' (swaps touching $x$) dominate the reduced clique swaps among $V_x$.
+
+\medskip
+\noindent\textbf{Where in CLR:} Octopus is Theorem~2.3 / (2.4); the proof is Section~3.
+
+\subsection{How octopus is proved in CLR: the 6-step proof arc (presentation summary)}
+
+Throughout CLR's Section~3, relabel $V=\{0,1,\dots,n-1\}$ and fix the hub $x=0$.
+Write $c_i:=c_{0i}$ for $i\ge 1$ and set $c_0:=-\sum_{i\ge 1}c_i<0$.
+
+\begin{enumerate}[leftmargin=1.8em,itemsep=0.35em]
+\item \textbf{Rewrite octopus as a single quadratic form inequality.}
+CLR rewrite (2.4) into (3.2), equivalent to nonnegativity of a single sum of squared differences over transpositions.
+\emph{(CLR: start of Section~3; equation (3.2)).}
+
+\item \textbf{Encode as a PSD matrix problem.}
+Define an explicit matrix $C$ indexed by permutations (equation (3.3)) so that (3.2) holds for all $f$ iff $C\succeq 0$.
+\emph{(CLR: equation (3.3)).}
+
+\item \textbf{Parity block decomposition $\Rightarrow$ reduce to a Schur complement.}
+Since transpositions flip parity, order permutations as (even, odd) to get
+$C=\bigl(\begin{smallmatrix}cI & X^{\mathsf T}\\ X & cI\end{smallmatrix}\bigr)$.
+Subtract a manifestly PSD Gram matrix $\widetilde C=A^{\mathsf T}A$ to reduce $C\succeq 0$ to
+\[
+C'(n):=c^2 I - X^{\mathsf T}X \succeq 0.
+\]
+\emph{(CLR: Subsection~3.1; equation (3.4)).}
+
+\item \textbf{Expand the correction matrix into universal 4-vertex pieces.}
+Lemma~3.1 gives
+\[
+C'(n)=\sum_{J\subset V:\ |J|=4} (-c_J)\,A_J(n),\qquad c_J=\prod_{i\in J}c_i,
+\]
+where $A_J(n)$ is rate-free (depends only on the 4-set $J$).
+\emph{(CLR: Lemma~3.1).}
+
+\item \textbf{Show each $A_J(n)$ is PSD (local block reduction).}
+Lemma~3.2 shows $A_J(n)$ is block diagonal, each block a copy of a fixed $12\times 12$ matrix,
+whose spectrum is $\{0,12\}$, hence $A_J(n)\succeq 0$.
+\emph{(CLR: Lemma~3.2; discussion around (3.8)).}
+
+\item \textbf{Resolve mixed signs by bundling into PSD 5-vertex packages.}
+Because coefficients $(-c_J)$ can have either sign (due to $c_0<0$),
+CLR define for each 5-set $K\ni 0$ a signed combination
+$B_K(n)=\sum_{J\subset K, |J|=4}\varepsilon_J A_J(n)$ and prove $B_K(n)\succeq 0$ (Lemma~3.3),
+reducing to a single canonical $60\times60$ check and showing it is a scaled projection ($B^2=24B$).
+Then Lemma~3.4 gives a coefficient ``sandwich'':
+\[
+0\ \le\ \sum_K \frac{|c_K|}{|c_0|}B_K(n)\ \le\ C'(n),
+\]
+implying $C'(n)\succeq 0$, hence $C\succeq 0$, hence octopus.
+\emph{(CLR: Lemma~3.3 and Lemma~3.4 / Subsection~3.3).}
+\end{enumerate}
+
+\paragraph{One-line message.}
+\emph{Octopus is proved by turning the Dirichlet comparison into an explicit PSD matrix statement and reducing it,
+via parity blocks and local (4- and 5-vertex) block decompositions, to a finite ``small matrix'' positivity verification.}
+
+\subsection{Closing Aldous from octopus (one-slide proof spine)}
+
+\begin{enumerate}[leftmargin=1.8em,itemsep=0.25em]
+\item RW elimination monotonicity: $\lambda^{\rw}(G_x)\ge \lambda^{\rw}(G)$.
+\item Octopus: the IP Dirichlet form on the star at $x$ dominates the IP Dirichlet form on the reduced clique (with Kron weights).
+\item Induct on $|V|$: apply the induction hypothesis on $G_x$ and combine with elimination to obtain
+$\lambda^{\ip}(G)\ge \lambda^{\rw}(G)$.
+\item Together with $\lambda^{\ip}(G)\le \lambda^{\rw}(G)$, conclude equality.
+\end{enumerate}
+
+\subsection{Transition: what Aldous gives us, and what must be new for our algorithm}
+
+\paragraph{What Aldous/CLR gives (template).}
+A \emph{spectral-geometry template} for large configuration spaces:
+local generators $\Rightarrow$ Dirichlet-form domination (octopus) $\Rightarrow$ elimination/induction $\Rightarrow$ constant gap on expanders.
+
+\paragraph{What changes in our setting (new ideas).}
+In our move-graph/QMC setting we still seek \emph{local-to-global control}, but:
+\begin{itemize}[leftmargin=1.6em,itemsep=0.25em]
+\item the state space is not $\mathfrak{S}_n$ (it is a constrained combinatorial space, e.g.\ perfect matchings / VB coverings),
+\item moves are not arbitrary transpositions (they are local $4$-cycle flips),
+\item and the effective dynamics typically includes a \emph{potential well} (diagonal energy) and/or non-uniform weights.
+\end{itemize}
+Thus the next step is to build the \emph{analogue} of CLR's Dirichlet-form control in this new configuration space:
+we will prove a \emph{Dirichlet barrier / localization} statement that justifies truncating to a constant-radius neighborhood
+and running imaginary-time evolution inside that truncated subspace.
+
+\paragraph{Hand-off sentence (say this out loud).}
+\emph{Aldous/CLR shows that on an expander, the pure kinetic move graph has constant gap via a sharp Dirichlet-form inequality (octopus).
+Our contribution is to combine this kinetic expansion with the diagonal potential to prove localization (a Dirichlet barrier),
+which yields a polynomial-time algorithm by truncation plus imaginary-time evolution.}
+
+% ============================================================
+% End Roadmap
+% ============================================================
+
+\vspace{-0.4em}
+\bibliographystyle{plain}
+\begin{thebibliography}{9}
+
+\bibitem{CLR}
+P.~Caputo, T.~Liggett, and T.~Richthammer.
+\newblock {Proof of Aldous' spectral gap conjecture}.
+\newblock \emph{Journal of the American Mathematical Society} 23 (2010), 831--851.
+\newblock Preprint: \href{https://arxiv.org/abs/0906.1238}{arXiv:0906.1238}.
+
+\end{thebibliography}
+
+\end{document}
